@@ -2534,7 +2534,7 @@ iostat [参数] [时间] [次数]
 
 > 2、命令功能
 
-​	通过iostat方便查看CPU、网卡、tty设备、磁盘、CD-ROM 等等设备的活动情况,	负载信息。 
+​	通过iostat方便查看CPU、网卡、tty设备、磁盘、CD-ROM 等等设备的活动情况,负载信息。 
 
 > 3、命令参数
 
@@ -2562,17 +2562,2681 @@ iostat [参数] [时间] [次数]
 
 1）、显示所有设备负载情况 
 
+```sh
+[root@localhost /]# iostat 
+Linux 3.10.0-957.12.2.el7.x86_64 (localhost.luna)       2019年05月25日  _x86_64_        (2 CPU)
+
+avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+           5.22    0.00    6.83    6.58    0.00   81.37
+
+Device:            tps    kB_read/s    kB_wrtn/s    kB_read    kB_wrtn
+sda              57.00      1296.57       138.36     207425      22135
+```
+
+cpu属性值说明：
+
+%user：CPU处在用户模式下的时间百分比。
+
+%nice：CPU处在带NICE值的用户模式下的时间百分比。
+
+%system：CPU处在系统模式下的时间百分比。
+
+%iowait：CPU等待输入输出完成时间的百分比。
+
+%steal：管理程序维护另一个虚拟处理器时，虚拟CPU的无意识等待时间百分比。
+
+%idle：CPU空闲时间百分比。
+
+​	备注：如果%iowait的值过高，表示硬盘存在I/O瓶颈，%idle值高，表示CPU较空闲，如果%idle值高但系统响应慢时，有可能是CPU等待分配内存，此时应加大内存容量。%idle值如果持续低于10，那么系统的CPU处理能力相对较低，表明系统中最需要解决的资源是CPU。 
+
+
+
+disk属性值说明：
+
+rrqm/s:  每秒进行 merge 的读操作数目。即 rmerge/s
+
+wrqm/s:  每秒进行 merge 的写操作数目。即 wmerge/s
+
+r/s:  每秒完成的读 I/O 设备次数。即 rio/s
+
+w/s:  每秒完成的写 I/O 设备次数。即 wio/s
+
+rsec/s:  每秒读扇区数。即 rsect/s
+
+wsec/s:  每秒写扇区数。即 wsect/s
+
+rkB/s:  每秒读K字节数。是 rsect/s 的一半，因为每扇区大小为512字节。
+
+wkB/s:  每秒写K字节数。是 wsect/s 的一半。
+
+avgrq-sz:  平均每次设备I/O操作的数据大小 (扇区)。
+
+avgqu-sz:  平均I/O队列长度。
+
+await:  平均每次设备I/O操作的等待时间 (毫秒)。
+
+svctm: 平均每次设备I/O操作的服务时间 (毫秒)。
+
+%util:  一秒中有百分之多少的时间用于 I/O 操作，即被io消耗的cpu百分比
+
+​	备注：如果 %util 接近 100%，说明产生的I/O请求太多，I/O系统已经满负荷，该磁盘可能存在瓶颈。如果 svctm 比较接近 await，说明 I/O 几乎没有等待时间；如果 await 远大于 svctm，说明I/O 队列太长，io响应太慢，则需要进行必要优化。如果avgqu-sz比较大，也表示有当量io在等待。
+
+
+
 2）、定时显示所有信息 
+
+​	每隔 2秒刷新显示，且显示3次 
+
+```sh
+[root@localhost /]# iostat 2 3
+Linux 3.10.0-957.12.2.el7.x86_64 (localhost.luna)       2019年05月25日  _x86_64_        (2 CPU)
+
+avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+           0.60    0.00    0.84    0.76    0.00   97.80
+
+Device:            tps    kB_read/s    kB_wrtn/s    kB_read    kB_wrtn
+sda               6.76       150.40        16.46     209621      22938
+
+avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+           0.25    0.00    0.25    0.00    0.00   99.50
+
+Device:            tps    kB_read/s    kB_wrtn/s    kB_read    kB_wrtn
+sda               0.00         0.00         0.00          0          0
+
+avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+           0.00    0.00    0.25    0.00    0.00   99.75
+
+Device:            tps    kB_read/s    kB_wrtn/s    kB_read    kB_wrtn
+sda               0.00         0.00         0.00          0          0
+```
+
+
 
 3）、显示指定磁盘信息 
 
+```sh
+[root@localhost data]# iostat -d sda1
+Linux 3.10.0-957.12.2.el7.x86_64 (localhost.luna)       2019年05月25日  _x86_64_        (2 CPU)
+
+Device:            tps    kB_read/s    kB_wrtn/s    kB_read    kB_wrtn
+sda1              0.70        13.91         8.62      24387      15107
+```
+
+
+
 4）、显示tty和Cpu信息 
+
+```sh
+[root@localhost data]# iostat -t
+Linux 3.10.0-957.12.2.el7.x86_64 (localhost.luna)       2019年05月25日  _x86_64_        (2 CPU)
+
+2019年05月25日 09时12分42秒
+avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+           0.47    0.00    0.66    0.59    0.00   98.28
+
+Device:            tps    kB_read/s    kB_wrtn/s    kB_read    kB_wrtn
+sda               5.23       115.95        12.81     209621      23151
+```
+
+
 
 5）、以M为单位显示所有信息 
 
+```sh
+[root@localhost data]# iostat -m
+Linux 3.10.0-957.12.2.el7.x86_64 (localhost.luna)       2019年05月25日  _x86_64_        (2 CPU)
+
+avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+           0.41    0.00    0.58    0.51    0.00   98.50
+
+Device:            tps    MB_read/s    MB_wrtn/s    MB_read    MB_wrtn
+sda               4.53         0.10         0.01        204         22
+```
+
+
+
 6）、查看TPS和吞吐量信息 
+
+```sh
+[root@localhost data]# iostat -d -k 1 1
+Linux 3.10.0-957.12.2.el7.x86_64 (localhost.luna)       2019年05月25日  _x86_64_        (2 CPU)
+
+Device:            tps    kB_read/s    kB_wrtn/s    kB_read    kB_wrtn
+sda               4.37        96.87        10.70     209621      23151
+```
+
+tps：该设备每秒的传输次数（Indicate the number of transfers per second that were issued to the device.）。“一次传输”意思是“一次I/O请求”。多个逻辑请求可能会被合并为“一次I/O请求”。“一次传输”请求的大小是未知的。
+
+kB_read/s：每秒从设备（drive expressed）读取的数据量；
+
+kB_wrtn/s：每秒向设备（drive expressed）写入的数据量；
+
+kB_read：读取的总数据量；kB_wrtn：写入的总数量数据量；
+
+这些单位都为Kilobytes。
+
+上面的例子中，我们可以看到磁盘sda以及它的各个分区的统计数据，当时统计的磁盘总TPS是22.73，下面是各个分区的TPS。（因为是瞬间值，所以总TPS并不严格等于各个分区TPS的总和）
+
+
 
 7）、查看设备使用率（%util）、响应时间（await） 
 
+```sh
+[root@localhost data]# iostat -d -x -k 1 1
+Linux 3.10.0-957.12.2.el7.x86_64 (localhost.luna)       2019年05月25日  _x86_64_        (2 CPU)
+
+Device:         rrqm/s   wrqm/s     r/s     w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await r_await w_await  svctm  %util
+sda               0.00     0.04    3.91    0.23    91.52    10.12    49.19     0.04    9.35    8.69   20.65   2.85   1.18
+```
+
+说明：
+
+rrqm/s：  每秒进行 merge 的读操作数目.即 delta(rmerge)/s
+
+wrqm/s： 每秒进行 merge 的写操作数目.即 delta(wmerge)/s
+
+r/s：  每秒完成的读 I/O 设备次数.即 delta(rio)/s
+
+w/s：  每秒完成的写 I/O 设备次数.即 delta(wio)/s
+
+rsec/s：  每秒读扇区数.即 delta(rsect)/s
+
+wsec/s： 每秒写扇区数.即 delta(wsect)/s
+
+rkB/s：  每秒读K字节数.是 rsect/s 的一半,因为每扇区大小为512字节.(需要计算)
+
+wkB/s：  每秒写K字节数.是 wsect/s 的一半.(需要计算)
+
+avgrq-sz：平均每次设备I/O操作的数据大小 (扇区).delta(rsect+wsect)/delta(rio+wio)
+
+avgqu-sz：平均I/O队列长度.即 delta(aveq)/s/1000 (因为aveq的单位为毫秒).
+
+await：  平均每次设备I/O操作的等待时间 (毫秒).即 delta(ruse+wuse)/delta(rio+wio)
+
+svctm： 平均每次设备I/O操作的服务时间 (毫秒).即 delta(use)/delta(rio+wio)
+
+%util： 一秒中有百分之多少的时间用于 I/O 操作,或者说一秒中有多少时间 I/O 队列是非空的，即 delta(use)/s/1000 (因为use的单位为毫秒)
+
+如果 %util 接近 100%，说明产生的I/O请求太多，I/O系统已经满负荷，该磁盘可能存在瓶颈。
+
+idle小于70% IO压力就较大了，一般读取速度有较多的wait。
+
+同时可以结合vmstat 查看查看b参数(等待资源的进程数)和wa参数(IO等待所占用的CPU时间的百分比，高过30%时IO压力高)。
+
+另外 await 的参数也要多和 svctm 来参考。差的过高就一定有 IO 的问题。
+
+avgqu-sz 也是个做 IO 调优时需要注意的地方，这个就是直接每次操作的数据的大小，如果次数多，但数据拿的小的话，其实 IO 也会很小。如果数据拿的大，才IO 的数据会高。也可以通过 avgqu-sz × ( r/s or w/s ) = rsec/s or wsec/s。也就是讲，读定速度是这个来决定的。
+
+svctm 一般要小于 await (因为同时等待的请求的等待时间被重复计算了)，svctm 的大小一般和磁盘性能有关，CPU/内存的负荷也会对其有影响，请求过多也会间接导致 svctm 的增加。await 的大小一般取决于服务时间(svctm) 以及 I/O 队列的长度和 I/O 请求的发出模式。如果 svctm 比较接近 await，说明 I/O 几乎没有等待时间；如果 await 远大于 svctm，说明 I/O 队列太长，应用得到的响应时间变慢，如果响应时间超过了用户可以容许的范围，这时可以考虑更换更快的磁盘，调整内核 elevator 算法，优化应用，或者升级 CPU。
+
+队列长度(avgqu-sz)也可作为衡量系统 I/O 负荷的指标，但由于 avgqu-sz 是按照单位时间的平均值，所以不能反映瞬间的 I/O 洪水。
+
+形象的比喻：
+       r/s+w/s 类似于交款人的总数
+      平均队列长度(avgqu-sz)类似于单位时间里平均排队人的个数
+      平均服务时间(svctm)类似于收银员的收款速度
+      平均等待时间(await)类似于平均每人的等待时间
+      平均I/O数据(avgrq-sz)类似于平均每人所买的东西多少
+       I/O 操作率 (%util)类似于收款台前有人排队的时间比例
+       设备IO操作:总IO(io)/s = r/s(读) +w/s(写) =1.46 + 25.28=26.74
+      平均每次设备I/O操作只需要0.36毫秒完成,现在却需要10.57毫秒完成，因为发出的	请求太多(每秒26.74个)，假如请求时同时发出的，可以这样计算平均等待时间:
+      平均等待时间=单个I/O服务器时间*(1+2+...+请求总数-1)/请求总数 
+       每秒发出的I/0请求很多,但是平均队列就4,表示这些请求比较均匀,大部分处理还是比较及时。
+
+
+
 8）、查看cpu状态 
 
+```sh
+[root@localhost data]# iostat -c 1 3
+Linux 3.10.0-957.12.2.el7.x86_64 (localhost.luna)       2019年05月25日  _x86_64_        (2 CPU)
+
+avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+           0.30    0.00    0.44    0.38    0.00   98.87
+
+avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+           0.00    0.00    0.49    0.00    0.00   99.51
+
+avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+           0.00    0.00    0.00    0.00    0.00  100.00
+```
+
+
+
+#### 1.6.5  lsof
+
+​	lsof（list open files）是一个列出当前系统打开文件的工具。在linux环境下，任何事物都以文件的形式存在，通过文件不仅仅可以访问常规数据，还可以访问网络连接和硬件。所以如传输控制协议 (TCP) 和用户数据报协议 (UDP) 套接字等，系统在后台都为该应用程序分配了一个文件描述符，无论这个文件的本质如何，该文件描述符为应用程序与基础操作系统之间的交互提供了通用接口。因为应用程序打开文件的描述符列表提供了大量关于这个应用程序本身的信息，因此通过lsof工具能够查看这个列表对系统监测以及排错将是很有帮助的。 
+
+> 1、命令格式
+
+```
+lsof [参数] [文件]
+```
+
+> 2、命令功能
+
+​	用于查看你进程开打的文件，打开文件的进程，进程打开的端口(TCP、UDP)。找回/恢复删除的文件。是十分方便的系统监视工具，因为 lsof 需要访问核心内存和各种文件，所以需要root用户执行。 
+
+sof打开的文件可以是：
+
+1.普通文件
+
+2.目录
+
+3.网络文件系统的文件
+
+4.字符或设备文件
+
+5.(函数)共享库
+
+6.管道，命名管道
+
+7.符号链接
+
+8.网络文件（例如：NFS file、网络socket，unix域名socket）
+
+9.还有其它类型的文件，等等
+
+
+
+> 3、命令参数
+
+-a 列出打开文件存在的进程
+
+-c<进程名> 列出指定进程所打开的文件
+
+-g  列出GID号进程详情
+
+-d<文件号> 列出占用该文件号的进程
+
++d<目录>  列出目录下被打开的文件
+
++D<目录>  递归列出目录下被打开的文件
+
+-n<目录>  列出使用NFS的文件
+
+-i<条件>  列出符合条件的进程。（4、6、协议、:端口、 @ip ）
+
+-p<进程号> 列出指定进程号所打开的文件
+
+-u  列出UID号进程详情
+
+-h 显示帮助信息
+
+-v 显示版本信息
+
+
+
+> 4、使用例子
+
+1、
+
+```sh
+COMMAND     PID USER   FD      TYPE             DEVICE     SIZE       NODE NAME
+init          1 root  cwd       DIR                8,2     4096          2 /
+init          1 root  rtd       DIR                8,2     4096          2 /
+init          1 root  txt       REG                8,2    43496    6121706 /sbin/init
+init          1 root  mem       REG                8,2   143600    7823908 /lib64/ld-2.5.so
+init          1 root  mem       REG                8,2  1722304    7823915 /lib64/libc-2.5.so
+init          1 root  mem       REG                8,2    23360    7823919 /lib64/libdl-2.5.so
+init          1 root  mem       REG                8,2    95464    7824116 /lib64/libselinux.so.1
+init          1 root  mem       REG                8,2   247496    7823947 /lib64/libsepol.so.1
+init          1 root   10u     FIFO               0,17                1233 /dev/initctl
+migration     2 root  cwd       DIR                8,2     4096          2 /
+migration     2 root  rtd       DIR                8,2     4096          2 /
+migration     2 root  txt   unknown                                        /proc/2/exe
+ksoftirqd     3 root  cwd       DIR                8,2     4096          2 /
+ksoftirqd     3 root  rtd       DIR                8,2     4096          2 /
+ksoftirqd     3 root  txt   unknown                                        /proc/3/exe
+migration     4 root  cwd       DIR                8,2     4096          2 /
+migration     4 root  rtd       DIR                8,2     4096          2 /
+migration     4 root  txt   unknown                                        /proc/4/exe
+ksoftirqd     5 root  cwd       DIR                8,2     4096          2 /
+ksoftirqd     5 root  rtd       DIR                8,2     4096          2 /
+ksoftirqd     5 root  txt   unknown                                        /proc/5/exe
+events/0      6 root  cwd       DIR                8,2     4096          2 /
+events/0      6 root  rtd       DIR                8,2     4096          2 /
+events/0      6 root  txt   unknown                                        /proc/6/exe
+events/1      7 root  cwd       DIR                8,2     4096          2 /
+```
+
+COMMAND：进程的名称
+
+PID：进程标识符
+
+PPID：父进程标识符（需要指定-R参数）
+
+USER：进程所有者
+
+PGID：进程所属组
+
+FD：文件描述符，应用程序通过文件描述符识别该文件。如cwd、txt等
+
+（1）cwd：表示current work dirctory，即：应用程序的当前工作目录，这是该应用程序启动的目录，除非它本身对这个目录进行更改
+
+（2）txt ：该类型的文件是程序代码，如应用程序二进制文件本身或共享库，如上列表中显示的 /sbin/init 程序
+
+（3）lnn：library references (AIX);
+
+（4）er：FD information error (see NAME column);
+
+（5）jld：jail directory (FreeBSD);
+
+（6）ltx：shared library text (code and data);
+
+（7）mxx ：hex memory-mapped type number xx.
+
+（8）m86：DOS Merge mapped file;
+
+（9）mem：memory-mapped file;
+
+（10）mmap：memory-mapped device;
+
+（11）pd：parent directory;
+
+（12）rtd：root directory;
+
+（13）tr：kernel trace file (OpenBSD);
+
+（14）v86  VP/ix mapped file;
+
+（15）0：表示标准输出
+
+（16）1：表示标准输入
+
+（17）2：表示标准错误
+
+一般在标准输出、标准错误、标准输入后还跟着文件状态模式：r、w、u等
+
+（1）u：表示该文件被打开并处于读取/写入模式
+
+（2）r：表示该文件被打开并处于只读模式
+
+（3）w：表示该文件被打开并处于
+
+（4）空格：表示该文件的状态模式为unknow，且没有锁定
+
+（5）-：表示该文件的状态模式为unknow，且被锁定
+
+同时在文件状态模式后面，还跟着相关的锁
+
+（1）N：for a Solaris NFS lock of unknown type;
+
+（2）r：for read lock on part of the file;
+
+（3）R：for a read lock on the entire file;
+
+（4）w：for a write lock on part of the file;（文件的部分写锁）
+
+（5）W：for a write lock on the entire file;（整个文件的写锁）
+
+（6）u：for a read and write lock of any length;
+
+（7）U：for a lock of unknown type;
+
+（8）x：for an SCO OpenServer Xenix lock on part      of the file;
+
+（9）X：for an SCO OpenServer Xenix lock on the      entire file;
+
+（10）space：if there is no lock.
+
+TYPE：文件类型，如DIR、REG等，常见的文件类型
+
+（1）DIR：表示目录
+
+（2）CHR：表示字符类型
+
+（3）BLK：块设备类型
+
+（4）UNIX： UNIX 域套接字
+
+（5）FIFO：先进先出 (FIFO) 队列
+
+（6）IPv4：网际协议 (IP) 套接字
+
+DEVICE：指定磁盘的名称
+
+SIZE：文件的大小
+
+NODE：索引节点（文件在磁盘上的标识）
+
+NAME：打开文件的确切名称
+
+
+
+2、查看谁正在使用某个文件，也就是说查找某个文件相关的进程 
+
+```sh
+[root@localhost /]# lsof /bin/bash
+COMMAND    PID USER  FD   TYPE DEVICE SIZE/OFF     NODE NAME
+ksmtuned  6216 root txt    REG    8,3   960392 25208829 /usr/bin/bash
+bash     16752 root txt    REG    8,3   960392 25208829 /usr/bin/bash
+bash     17676 root txt    REG    8,3   960392 25208829 /usr/bin/bash
+```
+
+
+
+3、递归查看某个目录的文件信息 
+
+```sh
+[root@localhost test1]# lsof ../test1/
+COMMAND   PID USER   FD   TYPE DEVICE SIZE/OFF     NODE NAME
+bash    17676 root  cwd    DIR    8,3      105 16797781 ../test1
+lsof    18787 root  cwd    DIR    8,3      105 16797781 ../test1
+lsof    18788 root  cwd    DIR    8,3      105 16797781 ../test1
+```
+
+
+
+```
+实例13：列出所有的网络连接
+
+命令：
+
+lsof -i
+
+实例14：列出所有tcp 网络连接信息
+
+命令：
+
+lsof -i tcp
+
+实例15：列出所有udp网络连接信息
+
+命令：
+
+lsof -i udp
+
+实例16：列出谁在使用某个端口
+
+命令：
+
+lsof -i :3306
+
+实例17：列出谁在使用某个特定的udp端口
+
+命令：
+
+lsof -i udp:55
+
+或者：特定的tcp端口
+
+命令：
+
+lsof -i tcp:80
+
+实例18：列出某个用户的所有活跃的网络端口
+
+命令：
+
+lsof -a -u test -i
+
+实例24：列出COMMAND列中包含字符串" sshd"，且文件描符的类型为txt的文件信息
+
+命令：
+
+lsof -c sshd -a -d txt
+```
+
+
+
+### 1.7  网络命令
+
+#### 1.7.1 ifconfig
+
+​	许多windows非常熟悉ipconfig命令行工具，它被用来获取网络接口配置信息并对此进行修改。Linux系统拥有一个类似的工具，也就是ifconfig(interfaces config)。通常需要以root身份登录或使用sudo以便在Linux机器上使用ifconfig工具。依赖于ifconfig命令中使用一些选项属性，ifconfig工具不仅可以被用来简单地获取网络接口配置信息，还可以修改这些配置。 
+
+> 1、命令格式
+
+```
+ifconfig [网络设备][参数]
+```
+
+> 2、命令功能
+
+​	ifconfig 命令用来查看和配置网络设备。当网络环境发生改变时可通过此命令对网络进行相应的配置。 
+
+> 3、命令参数
+
+up 启动指定网络设备/网卡。
+
+down 关闭指定网络设备/网卡。该参数可以有效地阻止通过指定接口的IP信息流，如果想永久地关闭一个接口，我们还需要从核心路由表中将该接口的路由信息全部删除。
+
+arp 设置指定网卡是否支持ARP协议。
+
+-promisc 设置是否支持网卡的promiscuous模式，如果选择此参数，网卡将接收网络中发给它所有的数据包
+
+-allmulti 设置是否支持多播模式，如果选择此参数，网卡将接收网络中所有的多播数据包
+
+-a 显示全部接口信息
+
+-s 显示摘要信息（类似于 netstat -i）
+
+add 给指定网卡配置IPv6地址
+
+del 删除指定网卡的IPv6地址
+
+<硬件地址> 配置网卡最大的传输单元
+
+mtu<字节数> 设置网卡的最大传输单元 (bytes)
+
+netmask<子网掩码> 设置网卡的子网掩码。掩码可以是有前缀0x的32位十六进制数，也可以是用点分开的4个十进制数。如果不打算将网络分成子网，可以不管这一选项；如果要使用子网，那么请记住，网络中每一个系统必须有相同子网掩码。
+
+tunel 建立隧道
+
+dstaddr 设定一个远端地址，建立点对点通信
+
+-broadcast<地址> 为指定网卡设置广播协议
+
+-pointtopoint<地址> 为网卡设置点对点通讯协议
+
+multicast 为网卡设置组播标志
+
+address 为网卡设置IPv4地址
+
+txqueuelen<长度> 为网卡设置传输列队的长度
+
+
+
+> 4、使用例子
+
+1、显示网络设备信息
+
+```sh
+[root@localhost test1]# ifconfig 
+ens33: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 192.168.163.129  netmask 255.255.255.0  broadcast 192.168.163.255
+        inet6 fe80::dfac:128f:2a9c:e815  prefixlen 64  scopeid 0x20<link>
+        ether 00:0c:29:01:fa:3e  txqueuelen 1000  (Ethernet)
+        RX packets 5355  bytes 437373 (427.1 KiB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 4172  bytes 6077215 (5.7 MiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
+        inet 127.0.0.1  netmask 255.0.0.0
+        inet6 ::1  prefixlen 128  scopeid 0x10<host>
+        loop  txqueuelen 1000  (Local Loopback)
+        RX packets 68  bytes 5684 (5.5 KiB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 68  bytes 5684 (5.5 KiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+virbr0: flags=4099<UP,BROADCAST,MULTICAST>  mtu 1500
+        inet 192.168.122.1  netmask 255.255.255.0  broadcast 192.168.122.255
+        ether 52:54:00:d6:12:80  txqueuelen 1000  (Ethernet)
+        RX packets 0  bytes 0 (0.0 B)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 0  bytes 0 (0.0 B)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+```
+
+​	eth0 表示第一块网卡， 其中 HWaddr 表示网卡的物理地址，可以看到目前这个网卡的物理地址(MAC地址）是 00:50:56:BF:26:20
+
+inet addr 用来表示网卡的IP地址，此网卡的 IP地址是 192.168.120.204，广播地址， Bcast:192.168.120.255，掩码地址Mask:255.255.255.0 
+
+lo 是表示主机的回坏地址，这个一般是用来测试一个网络程序，但又不想让局域网或外网的用户能够查看，只能在此台主机上运行和查看所用的网络接口。比如把 HTTPD服务器的指定到回坏地址，在浏览器输入 127.0.0.1 就能看到你所架WEB网站了。但只是您能看得到，局域网的其它主机或用户无从知道。
+
+第一行：连接类型：Ethernet（以太网）HWaddr（硬件mac地址）
+
+第二行：网卡的IP地址、子网、掩码
+
+第三行：UP（代表网卡开启状态）RUNNING（代表网卡的网线被接上）MULTICAST（支持组播）MTU:1500（最大传输单元）：1500字节
+
+第四、五行：接收、发送数据包情况统计
+
+第七行：接收、发送数据字节数统计信息。
+
+
+
+2、启动关闭指定网卡 
+
+```
+ifconfig eth0 up
+
+ifconfig eth0 down
+```
+
+
+
+3、为网卡配置和删除IPv6地址 
+
+```
+ifconfig eth0 add 33ffe:3240:800:1005::2/64
+
+ifconfig eth0 del 33ffe:3240:800:1005::2/64
+```
+
+
+
+4、用ifconfig修改MAC地址 
+
+```
+ifconfig eth0 hw ether 00:AA:BB:CC:DD:EE
+```
+
+fconfig eth0 192.168.120.56 
+
+给eth0网卡配置IP地：192.168.120.56
+
+ ifconfig eth0 192.168.120.56 netmask 255.255.255.0 
+
+给eth0网卡配置IP地址：192.168.120.56 ，并加上子掩码：255.255.255.0
+
+ifconfig eth0 192.168.120.56 netmask 255.255.255.0 broadcast 192.168.120.255
+
+/给eth0网卡配置IP地址：192.168.120.56，加上子掩码：255.255.255.0，加上个广播地址： 192.168.120.255
+
+
+
+5、启用和关闭ARP协议 
+
+```
+ifconfig eth0 arp
+
+ifconfig eth0 -arp
+```
+
+ifconfig eth0 arp 开启网卡eth0 的arp协议；
+
+ifconfig eth0 -arp 关闭网卡eth0 的arp协议；
+
+
+
+6、设置最大传输单元
+
+```
+ifconfig eth0 mtu 1500
+```
+
+设置能通过的最大数据包大小为 1500 bytes
+
+备注：用ifconfig命令配置的网卡信息，在网卡重启后机器重启后，配置就不存在。要想将上述的配置信息永远的存的电脑里，那就要修改网卡的配置文件了。
+
+
+
+#### 1.7.2 ping
+
+​	ping命令是常用的网络命令，它通常用来测试与目标主机的连通性，我们经常会说“ping一下某机器，看是不是开着”、不能打开网页时会说“你先ping网关地址192.168.1.1试试”。它通过发送ICMP ECHO_REQUEST数据包到网络主机（send ICMP ECHO_REQUEST to network hosts），并显示响应情况，这样我们就可以根据它输出的信息来确定目标主机是否可访问（但这不是绝对的）。有些服务器为了防止通过ping探测到，通过防火墙设置了禁止ping或者在内核参数中禁止ping，这样就不能通过ping确定该主机是否还处于开启状态。
+
+​	linux下的ping和windows下的ping稍有区别,linux下ping不会自动终止,需要按ctrl+c终止或者用参数-c指定要求完成的回应次数。
+
+> 1、命令格式
+
+```
+ping [参数][主机名或IP地址]
+```
+
+> 2、命令功能
+
+​	ping命令用于：确定网络和各外部主机的状态；跟踪和隔离硬件和软件问题；测试、评估和管理网络。如果主机正在运行并连在网上，它就对回送信号进行响应。每个回送信号请求包含一个网际协议（IP）和 ICMP 头，后面紧跟一个 tim 结构，以及来填写这个信息包的足够的字节。缺省情况是连续发送回送信号请求直到接收到中断信号（Ctrl-C）。
+
+ping 命令每秒发送一个数据报并且为每个接收到的响应打印一行输出。ping 命令计算信号往返时间和(信息)包丢失情况的统计信息，并且在完成之后显示一个简要总结。ping 命令在程序超时或当接收到 SIGINT 信号时结束。Host 参数或者是一个有效的主机名或者是因特网地址。
+
+> 3、命令参数
+
+-d 使用Socket的SO_DEBUG功能。
+
+-f  极限检测。大量且快速地送网络封包给一台机器，看它的回应。
+
+-n 只输出数值。
+
+-q 不显示任何传送封包的信息，只显示最后的结果。
+
+-r 忽略普通的Routing Table，直接将数据包送到远端主机上。通常是查看本机的网络接口是否有问题。
+
+-R 记录路由过程。
+
+-v 详细显示指令的执行过程。
+
+-c 数目：在发送指定数目的包后停止。
+
+-i 秒数：设定间隔几秒送一个网络封包给一台机器，预设值是一秒送一次。
+
+-I 网络界面：使用指定的网络界面送出数据包。
+
+-l 前置载入：设置在送出要求信息之前，先行发出的数据包。
+
+-p 范本样式：设置填满数据包的范本样式。
+
+-s 字节数：指定发送的数据字节数，预设值是56，加上8字节的ICMP头，一共是64ICMP数据字节。
+
+-t 存活数值：设置存活数值TTL的大小。
+
+> 4、使用例子
+
+1、ping 通
+
+```sh
+[root@localhost /]# ping www.bilibili.com
+PING interface.biliapi.com (223.85.58.113) 56(84) bytes of data.
+64 bytes from 223.85.58.113 (223.85.58.113): icmp_seq=1 ttl=128 time=27.9 ms
+64 bytes from 223.85.58.113 (223.85.58.113): icmp_seq=2 ttl=128 time=23.8 ms
+64 bytes from 223.85.58.113 (223.85.58.113): icmp_seq=3 ttl=128 time=23.9 ms
+64 bytes from 223.85.58.113 (223.85.58.113): icmp_seq=4 ttl=128 time=24.2 ms
+64 bytes from 223.85.58.113 (223.85.58.113): icmp_seq=5 ttl=128 time=23.0 ms
+64 bytes from 223.85.58.113 (223.85.58.113): icmp_seq=6 ttl=128 time=26.0 ms
+```
+
+2、ping指定次数 
+
+```sh
+[root@localhost /]# ping -c 10 www.bilibili.com
+PING interface.biliapi.com (223.85.58.113) 56(84) bytes of data.
+64 bytes from 223.85.58.113 (223.85.58.113): icmp_seq=1 ttl=128 time=33.0 ms
+64 bytes from 223.85.58.113 (223.85.58.113): icmp_seq=2 ttl=128 time=28.3 ms
+64 bytes from 223.85.58.113 (223.85.58.113): icmp_seq=3 ttl=128 time=26.8 ms
+64 bytes from 223.85.58.113 (223.85.58.113): icmp_seq=4 ttl=128 time=24.7 ms
+64 bytes from 223.85.58.113 (223.85.58.113): icmp_seq=5 ttl=128 time=24.0 ms
+64 bytes from 223.85.58.113 (223.85.58.113): icmp_seq=6 ttl=128 time=24.3 ms
+64 bytes from 223.85.58.113 (223.85.58.113): icmp_seq=7 ttl=128 time=24.0 ms
+64 bytes from 223.85.58.113 (223.85.58.113): icmp_seq=8 ttl=128 time=61.5 ms
+64 bytes from 223.85.58.113 (223.85.58.113): icmp_seq=9 ttl=128 time=24.2 ms
+64 bytes from 223.85.58.113 (223.85.58.113): icmp_seq=10 ttl=128 time=24.2 ms
+```
+
+3、时间间隔和次数限制的ping 
+
+```sh
+[root@localhost /]# ping -c 10 -i 0.5  www.bilibili.com
+PING interface.biliapi.com (223.85.58.113) 56(84) bytes of data.
+64 bytes from 223.85.58.113 (223.85.58.113): icmp_seq=1 ttl=128 time=24.0 ms
+64 bytes from 223.85.58.113 (223.85.58.113): icmp_seq=2 ttl=128 time=24.0 ms
+64 bytes from 223.85.58.113 (223.85.58.113): icmp_seq=3 ttl=128 time=23.8 ms
+64 bytes from 223.85.58.113 (223.85.58.113): icmp_seq=4 ttl=128 time=24.1 ms
+64 bytes from 223.85.58.113 (223.85.58.113): icmp_seq=5 ttl=128 time=23.6 ms
+64 bytes from 223.85.58.113 (223.85.58.113): icmp_seq=6 ttl=128 time=24.8 ms
+64 bytes from 223.85.58.113 (223.85.58.113): icmp_seq=7 ttl=128 time=25.0 ms
+64 bytes from 223.85.58.113 (223.85.58.113): icmp_seq=8 ttl=128 time=24.2 ms
+64 bytes from 223.85.58.113 (223.85.58.113): icmp_seq=9 ttl=128 time=23.6 ms
+64 bytes from 223.85.58.113 (223.85.58.113): icmp_seq=10 ttl=128 time=24.3 ms
+```
+
+
+
+#### 1.7.3 traceroute
+
+​	通过traceroute我们可以知道信息从你的计算机到互联网另一端的主机是走的什么路径。当然每次数据包由某一同样的出发点（source）到达某一同样的目的地(destination)走的路径可能会不一样，但基本上来说大部分时候所走的路由是相同的。linux系统中，我们称之为traceroute,在MS Windows中为tracert。 traceroute通过发送小的数据包到目的设备直到其返回，来测量其需要多长时间。一条路径上的每个设备traceroute要测3次。输出结果中包括每次测试的时间(ms)和设备的名称（如有的话）及其IP地址。
+
+在大多数情况下，我们会在linux主机系统下，直接执行命令行：
+
+traceroute hostname
+
+而在Windows系统下是执行tracert的命令：
+
+tracert hostname
+
+> 1、命令格式
+
+```
+tracerroute [参数][主机]
+```
+
+> 2、命令功能
+
+​	traceroute指令让你追踪网络数据包的路由途径，预设数据包大小是40Bytes，用户可另行设置。
+
+具体参数格式：traceroute [-dFlnrvx][-f<存活数值>][-g<网关>...][-i<网络界面>][-m<存活数值>][-p<通信端口>][-s<来源地址>][-t<服务类型>][-w<超时秒数>][主机名称或IP地址][数据包大小]
+
+
+
+> 3、命令参数
+
+-d 使用Socket层级的排错功能。
+
+-f 设置第一个检测数据包的存活数值TTL的大小。
+
+-F 设置勿离断位。
+
+-g 设置来源路由网关，最多可设置8个。
+
+-i 使用指定的网络界面送出数据包。
+
+-I 使用ICMP回应取代UDP资料信息。
+
+-m 设置检测数据包的最大存活数值TTL的大小。
+
+-n 直接使用IP地址而非主机名称。
+
+-p 设置UDP传输协议的通信端口。
+
+-r 忽略普通的Routing Table，直接将数据包送到远端主机上。
+
+-s 设置本地主机送出数据包的IP地址。
+
+-t 设置检测数据包的TOS数值。
+
+-v 详细显示指令的执行过程。
+
+-w 设置等待远端主机回报的时间。
+
+-x 开启或关闭数据包的正确性检验。
+
+
+
+> 4、使用例子
+
+1、简单常用方法
+
+```sh
+[root@localhost /]# traceroute www.bilibili.com
+traceroute to www.bilibili.com (223.85.58.113), 30 hops max, 60 byte packets
+ 1  gateway (192.168.163.2)  0.160 ms  0.093 ms  0.090 ms
+```
+
+​	记录按序列号从1开始，每个纪录就是一跳 ，每跳表示一个网关，我们看到每行有三个时间，单位是 ms，其实就是-q的默认参数。探测数据包向每个网关发送三个数据包后，网关响应后返回的时间；如果您用 traceroute -q 4 www.58.com ，表示向每个网关发送4个数据包。
+
+有时我们traceroute 一台主机时，会看到有一些行是以星号表示的。出现这样的情况，可能是防火墙封掉了ICMP的返回信息，所以我们得不到什么相关的数据包返回数据。
+
+有时我们在某一网关处延时比较长，有可能是某台网关比较阻塞，也可能是物理设备本身的原因。当然如果某台DNS出现问题时，不能解析主机名、域名时，也会 有延时长的现象；您可以加-n 参数来避免DNS解析，以IP格式输出数据。
+
+如果在局域网中的不同网段之间，我们可以通过traceroute 来排查问题所在，是主机的问题还是网关的问题。如果我们通过远程来访问某台服务器遇到问题时，我们用到traceroute 追踪数据包所经过的网关，提交IDC服务商，也有助于解决问题；但目前看来在国内解决这样的问题是比较困难的，就是我们发现问题所在，IDC服务商也不可能帮助我们解决。
+
+2、跳数设置
+
+```sh
+[root@localhost /]# traceroute -m 10 www.baidu.com
+traceroute to www.baidu.com (183.232.231.174), 10 hops max, 60 byte packets
+ 1  gateway (192.168.163.2)  0.166 ms  0.071 ms  0.107 ms
+ 2  * * *
+ 3  * * *
+ 4  * * *
+ 5  * * *
+ 6  * * *
+ 7  * * *
+ 8  * * *
+ 9  * * *
+10  * * *
+```
+
+3、显示IP地址，不查主机名 
+
+```sh
+[root@localhost /]# traceroute -n www.baidu.com
+traceroute to www.baidu.com (183.232.231.172), 30 hops max, 60 byte packets
+ 1  192.168.163.2  0.160 ms  0.147 ms  0.093 ms
+```
+
+#### 1.7.4 netstat 
+
+​	用于显示与IP、TCP、UDP和ICMP协议相关的统计数据，一般用于检验本机各端口的网络连接情况。netstat是在内核中访问网络及相关信息的程序，它能提供TCP连接，TCP和UDP监听，进程内存管理的相关报告。 	
+
+> 1、命令格式
+
+```
+netstat [-acCeFghilMnNoprstuvVwx][-A<网络类型>][--ip]
+```
+
+> 2、命令功能
+
+​	netstat用于显示与IP、TCP、UDP和ICMP协议相关的统计数据，一般用于检验本机各端口的网络连接情况。 
+
+> 3、命令参数
+
+-a或–all 显示所有连线中的Socket。
+
+-A<网络类型>或–<网络类型> 列出该网络类型连线中的相关地址。
+
+-c或–continuous 持续列出网络状态。
+
+-C或–cache 显示路由器配置的快取信息。
+
+-e或–extend 显示网络其他相关信息。
+
+-F或–fib 显示FIB。
+
+-g或–groups 显示多重广播功能群组组员名单。
+
+-h或–help 在线帮助。
+
+-i或–interfaces 显示网络界面信息表单。
+
+-l或–listening 显示监控中的服务器的Socket。
+
+-M或–masquerade 显示伪装的网络连线。
+
+-n或–numeric 直接使用IP地址，而不通过域名服务器。
+
+-N或–netlink或–symbolic 显示网络硬件外围设备的符号连接名称。
+
+-o或–timers 显示计时器。
+
+-p或–programs 显示正在使用Socket的程序识别码和程序名称。
+
+-r或–route 显示Routing Table。
+
+-s或–statistice 显示网络工作信息统计表。
+
+-t或–tcp 显示TCP传输协议的连线状况。
+
+-u或–udp 显示UDP传输协议的连线状况。
+
+-v或–verbose 显示指令执行过程。
+
+-V或–version 显示版本信息。
+
+-w或–raw 显示RAW传输协议的连线状况。
+
+-x或–unix 此参数的效果和指定”-A unix”参数相同。
+
+–ip或–inet 此参数的效果和指定”-A inet”参数相同。
+
+> 4、使用例子
+
+1、无参
+
+```sh
+[root@localhost /]# netstat
+Active Internet connections (w/o servers)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State      
+tcp        0      0 localhost.luna:ssh      192.168.163.1:8757      ESTABLISHED
+Active UNIX domain sockets (w/o servers)
+Proto RefCnt Flags       Type       State         I-Node   Path
+unix  3      [ ]         DGRAM                    1338     /run/systemd/notify
+unix  2      [ ]         DGRAM                    1340     /run/systemd/cgroups-agent
+unix  5      [ ]         DGRAM                    1351     /run/systemd/journal/socket
+unix  21     [ ]         DGRAM                    1353     /dev/log
+```
+
+​	从整体上看，netstat的输出结果可以分为两个部分：
+
+​	一个是Active Internet connections，称为有源TCP连接，其中"Recv-Q"和"Send-Q"指的是接收队列和发送队列。这些数字一般都应该是0。如果不是则表示软件包正在队列中堆积。这种情况只能在非常少的情况见到。
+
+​	另一个是Active UNIX domain sockets，称为有源Unix域套接口(和网络套接字一样，但是只能用于本机通信，性能可以提高一倍)。
+
+​	Proto显示连接使用的协议,RefCnt表示连接到本套接口上的进程号,Types显示套接口的类型,State显示套接口当前的状态,Path表示连接到套接口的其它进程使用的路径名。
+
+1）套接口类型：
+
+-t ：TCP
+
+-u ：UDP
+
+-raw ：RAW类型
+
+--unix ：UNIX域类型
+
+--ax25 ：AX25类型
+
+--ipx ：ipx类型
+
+--netrom ：netrom类型
+
+2）状态说明：
+
+LISTEN：侦听来自远方的TCP端口的连接请求
+
+SYN-SENT：再发送连接请求后等待匹配的连接请求（如果有大量这样的状态包，检查是否中招了）
+
+SYN-RECEIVED：再收到和发送一个连接请求后等待对方对连接请求的确认（如有大量此状态，估计被flood攻击了）
+
+ESTABLISHED：代表一个打开的连接
+
+FIN-WAIT-1：等待远程TCP连接中断请求，或先前的连接中断请求的确认
+
+FIN-WAIT-2：从远程TCP等待连接中断请求
+
+CLOSE-WAIT：等待从本地用户发来的连接中断请求
+
+CLOSING：等待远程TCP对连接中断的确认
+
+LAST-ACK：等待原来的发向远程TCP的连接中断请求的确认（不是什么好东西，此项出现，检查是否被攻击）
+
+TIME-WAIT：等待足够的时间以确保远程TCP接收到连接中断请求的确认
+
+CLOSED：没有任何连接状态
+
+
+
+2、列出所有端口
+
+```sh
+[root@localhost /]# netstat -a
+Active Internet connections (servers and established)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State      
+tcp        0      0 0.0.0.0:sunrpc          0.0.0.0:*               LISTEN     
+tcp        0      0 localhost.luna:domain   0.0.0.0:*               LISTEN     
+tcp        0      0 0.0.0.0:ssh             0.0.0.0:*               LISTEN     
+tcp        0      0 localhost:ipp           0.0.0.0:*               LISTEN     
+tcp        0      0 localhost:smtp          0.0.0.0:*               LISTEN     
+tcp        0     96 localhost.luna:ssh      192.168.163.1:8757      ESTABLISHED
+tcp6       0      0 [::]:sunrpc             [::]:*                  LISTEN     
+tcp6       0      0 [::]:ssh                [::]:*                  LISTEN     
+tcp6       0      0 localhost:ipp           [::]:*                  LISTEN     
+tcp6       0      0 localhost:smtp          [::]:*                  LISTEN     
+udp        0      0 0.0.0.0:31729           0.0.0.0:*                          
+udp        0      0 localhost.luna:domain   0.0.0.0:*                          
+udp        0      0 0.0.0.0:bootps          0.0.0.0:*                          
+udp        0      0 0.0.0.0:bootpc          0.0.0.0:*                          
+udp        0      0 0.0.0.0:sunrpc          0.0.0.0:*                          
+udp        0      0 0.0.0.0:mdns            0.0.0.0:*                          
+udp        0      0 localhost:323           0.0.0.0:*                          
+udp        0      0 0.0.0.0:38442           0.0.0.0:*                          
+udp        0      0 0.0.0.0:notify          0.0.0.0:*                          
+udp6       0      0 [::]:sunrpc             [::]:*                             
+udp6       0      0 localhost:323           [::]:*                             
+udp6       0      0 [::]:17802              [::]:*                             
+udp6       0      0 [::]:notify             [::]:*                             
+raw6       0      0 [::]:ipv6-icmp          [::]:* 
+```
+
+3、显示网卡列表
+
+```
+[root@localhost /]# netstat -i
+Kernel Interface table
+Iface      MTU    RX-OK RX-ERR RX-DRP RX-OVR    TX-OK TX-ERR TX-DRP TX-OVR Flg
+ens33     1500      544      0      0 0           238      0      0      0 BMRU
+lo       65536       68      0      0 0            68      0      0      0 LRU
+virbr0    1500        0      0      0 0             0      0      0      0 BMU
+```
+
+4、显示网络统计信息 
+
+```sh
+[root@localhost /]# netstat -s
+Ip:
+    356 total packets received
+    0 forwarded
+    0 incoming packets discarded
+    353 incoming packets delivered
+    305 requests sent out
+    15 outgoing packets dropped
+Icmp:
+    33 ICMP messages received
+    0 input ICMP message failed.
+    ICMP input histogram:
+        destination unreachable: 32
+        echo requests: 1
+    33 ICMP messages sent
+    0 ICMP messages failed
+    ICMP output histogram:
+        destination unreachable: 32
+        echo replies: 1
+```
+
+5、显示关于路由表的信息 
+
+```sh
+[root@localhost /]# netstat -r
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags   MSS Window  irtt Iface
+default         gateway         0.0.0.0         UG        0 0          0 ens33
+192.168.122.0   0.0.0.0         255.255.255.0   U         0 0          0 virbr0
+192.168.163.0   0.0.0.0         255.255.255.0   U         0 0          0 ens33
+```
+
+6、列出所有 tcp 端口 
+
+```sh
+[root@localhost /]# netstat -at
+Active Internet connections (servers and established)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State      
+tcp        0      0 0.0.0.0:sunrpc          0.0.0.0:*               LISTEN     
+tcp        0      0 localhost.luna:domain   0.0.0.0:*               LISTEN     
+tcp        0      0 0.0.0.0:ssh             0.0.0.0:*               LISTEN     
+tcp        0      0 localhost:ipp           0.0.0.0:*               LISTEN     
+tcp        0      0 localhost:smtp          0.0.0.0:*               LISTEN     
+tcp        0     96 localhost.luna:ssh      192.168.163.1:8757      ESTABLISHED
+tcp6       0      0 [::]:sunrpc             [::]:*                  LISTEN     
+tcp6       0      0 [::]:ssh                [::]:*                  LISTEN     
+tcp6       0      0 localhost:ipp           [::]:*                  LISTEN     
+tcp6       0      0 localhost:smtp          [::]:*                  LISTEN 
+```
+
+
+
+#### 1.7.5 ss
+
+​	ss命令可以用来获取socket统计信息，它可以显示和netstat类似的内容。但ss的优势在于它能够显示更多更详细的有关TCP和连接状态的信息，而且比netstat更快速更高效。 
+
+​	当服务器的socket连接数量变得非常大时，无论是使用netstat命令还是直接cat /proc/net/tcp，执行速度都会很慢。可能你不会有切身的感受，但请相信我，当服务器维持的连接达到上万个的时候，使用netstat等于浪费 生命，而用ss才是节省时间。 
+
+​	ss快的秘诀在于，它利用到了TCP协议栈中tcp_diag。tcp_diag是一个用于分析统计的模块，可以获得Linux 内核中第一手的信息，这就确保了ss的快捷高效。当然，如果你的系统中没有tcp_diag，ss也可以正常运行，只是效率会变得稍慢。（但仍然比 netstat要快。） 
+
+> 1、命令格式
+
+```
+ss [参数]
+ss [参数] [过滤]
+```
+
+> 2、命令功能
+
+​	ss(Socket Statistics的缩写)命令可以用来获取 socket统计信息，此命令输出的结果类似于 netstat输出的内容，但它能显示更多更详细的 TCP连接状态的信息，且比 netstat 更快速高效。它使用了 TCP协议栈中 tcp_diag（是一个用于分析统计的模块），能直接从获得第一手内核信息，这就使得 ss命令快捷高效。在没有 tcp_diag，ss也可以正常运行。 
+
+> 3、命令参数
+
+-h, --help	帮助信息
+
+-V, --version	程序版本信息
+
+-n, --numeric	不解析服务名称
+
+-r, --resolve        解析主机名
+
+-a, --all	显示所有套接字（sockets）
+
+-l, --listening	显示监听状态的套接字（sockets）
+
+-o, --options        显示计时器信息
+
+-e, --extended       显示详细的套接字（sockets）信息
+
+-m, --memory         显示套接字（socket）的内存使用情况
+
+-p, --processes	显示使用套接字（socket）的进程
+
+-i, --info	显示 TCP内部信息
+
+-s, --summary	显示套接字（socket）使用概况
+
+-4, --ipv4           仅显示IPv4的套接字（sockets）
+
+-6, --ipv6           仅显示IPv6的套接字（sockets）
+
+-0, --packet	        显示 PACKET 套接字（socket）
+
+-t, --tcp	仅显示 TCP套接字（sockets）
+
+-u, --udp	仅显示 UCP套接字（sockets）
+
+-d, --dccp	仅显示 DCCP套接字（sockets）
+
+-w, --raw	仅显示 RAW套接字（sockets）
+
+-x, --unix	仅显示 Unix套接字（sockets）
+
+-f, --family=FAMILY  显示 FAMILY类型的套接字（sockets），FAMILY可选，支持  unix, inet, inet6, link, netlink
+
+-A, --query=QUERY, --socket=QUERY
+
+​      QUERY := {all|inet|tcp|udp|raw|unix|packet|netlink}[,QUERY]
+
+-D, --diag=FILE     将原始TCP套接字（sockets）信息转储到文件
+
+ -F, --filter=FILE   从文件中都去过滤器信息
+
+​       FILTER := [ state TCP-STATE ][ EXPRESSION ]
+
+> 4、使用例子
+
+1、显示TCP连接
+
+```sh
+[root@localhost /]# ss -t -a
+State      Recv-Q Send-Q Local Address:Port                 Peer Address:Port                
+LISTEN     0      128              *:sunrpc                         *:*                    
+LISTEN     0      5      192.168.122.1:domain                         *:*                    
+LISTEN     0      128              *:ssh                            *:*                    
+LISTEN     0      128      127.0.0.1:ipp                            *:*                    
+LISTEN     0      100      127.0.0.1:smtp                           *:*                    
+ESTAB      0      96     192.168.163.129:ssh                  192.168.163.1:8757                 
+LISTEN     0      128             :::sunrpc                        :::*                    
+LISTEN     0      128             :::ssh                           :::*                    
+LISTEN     0      128            ::1:ipp                           :::*                    
+LISTEN     0      100            ::1:smtp                          :::*  
+```
+
+2、显示 Sockets 摘要 
+
+```sh
+[root@localhost /]# ss -s
+Total: 662 (kernel 1530)
+TCP:   11 (estab 1, closed 1, orphaned 0, synrecv 0, timewait 0/0), ports 0
+
+Transport Total     IP        IPv6
+*         1530      -         -        
+RAW       1         0         1        
+UDP       13        9         4        
+TCP       10        6         4        
+INET      24        15        9        
+FRAG      0         0         0  
+```
+
+3、列出所有打开的网络连接端口 
+
+```
+ss -l
+```
+
+4、查看进程使用的socket 
+
+```
+ss -pl
+```
+
+5、显示所有UDP Sockets 
+
+```
+ss -u -a
+```
+
+#### 1.7.6 telnet (linux似乎没法用，win可以使用)
+
+​	telnet命令通常用来远程登录。telnet程序是基于TELNET协议的远程登录客户端程序。Telnet协议是TCP/IP协议族中的一员，是Internet远程登陆服务的标准协议和主要方式。它为用户提供了在本地计算机上完成远程主机工作的 能力。在终端使用者的电脑上使用telnet程序，用它连接到服务器。终端使用者可以在telnet程序中输入命令，这些命令会在服务器上运行，就像直接在服务器的控制台上输入一样。可以在本地就能控制服务器。要开始一个 telnet会话，必须输入用户名和密码来登录服务器。Telnet是常用的远程控制Web服务器的方法。
+
+　　但是，telnet因为采用明文传送报文，安全性不好，很多Linux服务器都不开放telnet服务，而改用更安全的ssh方式了。但仍然有很多别的系统可能采用了telnet方式来提供远程登录，因此弄清楚telnet客户端的使用方式仍是很有必要的。
+
+telnet命令还可做别的用途，比如确定远程服务的状态，比如确定远程服务器的某个端口是否能访问。
+
+> 1、命令格式
+
+```
+telnet [参数][主机]
+```
+
+> 2、命令功能
+
+执行telnet指令开启终端机阶段作业，并登入远端主机。 
+
+> 3、命令参数
+
+-8 允许使用8位字符资料，包括输入与输出。
+
+-a 尝试自动登入远端系统。
+
+-b<主机别名> 使用别名指定远端主机名称。
+
+-c 不读取用户专属目录里的.telnetrc文件。
+
+-d 启动排错模式。
+
+-e<脱离字符> 设置脱离字符。
+
+-E 滤除脱离字符。
+
+-f 此参数的效果和指定"-F"参数相同。
+
+-F 使用Kerberos V5认证时，加上此参数可把本地主机的认证数据上传到远端主机。
+
+-k<域名> 使用Kerberos认证时，加上此参数让远端主机采用指定的领域名，而非该主机的域名。
+
+-K 不自动登入远端主机。
+
+-l<用户名称> 指定要登入远端主机的用户名称。
+
+-L 允许输出8位字符资料。
+
+-n<记录文件> 指定文件记录相关信息。
+
+-r 使用类似rlogin指令的用户界面。
+
+-S<服务类型> 设置telnet连线所需的IP TOS信息。
+
+-x 假设主机有支持数据加密的功能，就使用它。
+
+-X<认证形态> 关闭指定的认证形态。
+
+
+
+### 1.8 其他命令
+
+#### 1.8.1 ln
+
+​	ln是linux中又一个非常重要命令，它的功能是为某一个文件在另外一个位置建立一个同步的链接.当我们需要在不同的目录，用到相同的文件时，我们不需要在每一个需要的目录下都放一个必须相同的文件，我们只要在某个固定的目录，放上该文件，然后在 其它的目录下用ln命令链接（link）它就可以，不必重复的占用磁盘空间。 
+
+> 1、命令格式
+
+```
+ln [参数][源文件或目录][目标文件或目录]
+```
+
+> 2、命令功能
+
+​	Linux文件系统中，有所谓的链接(link)，我们可以将其视为档案的别名，而链接又可分为两种 : 硬链接(hard link)与软链接(symbolic link)，硬链接的意思是一个档案可以有多个名称，而软链接的方式则是产生一个特殊的档案，该档案的内容是指向另一个档案的位置。硬链接是存在同一个文件系统中，而软链接却可以跨越不同的文件系统。
+
+软链接：
+
+1.软链接，以路径的形式存在。类似于Windows操作系统中的快捷方式
+
+2.软链接可以 跨文件系统 ，硬链接不可以
+
+3.软链接可以对一个不存在的文件名进行链接
+
+4.软链接可以对目录进行链接
+
+硬链接:
+
+1.硬链接，以文件副本的形式存在。但不占用实际空间。
+
+2.不允许给目录创建硬链接
+
+3.硬链接只有在同一个文件系统中才能创建
+
+两点要注意：
+
+​	第一，ln命令会保持每一处链接文件的同步性，也就是说，不论你改动了哪一处，其它的文件都会发生相同的变化；
+
+​	第二，ln的链接又分软链接和硬链接两种，软链接就是ln –s 源文件 目标文件，它只会在你选定的位置上生成一个文件的镜像，不会占用磁盘空间，硬链接 ln 源文件 目标文件，没有参数-s， 它会在你选定的位置上生成一个和源文件大小相同的文件，无论是软链接还是硬链接，文件都保持同步变化。
+
+ln指令用在链接文件或目录，如同时指定两个以上的文件或目录，且最后的目的地是一个已经存在的目录，则会把前面指定的所有文件或目录复制到该目录中。若同时指定多个文件或目录，且最后的目的地并非是一个已存在的目录，则会出现错误信息。
+
+> 3、命令参数
+
+必要参数:
+
+-b 删除，覆盖以前建立的链接
+
+-d 允许超级用户制作目录的硬链接
+
+-f 强制执行
+
+-i 交互模式，文件存在则提示用户是否覆盖
+
+-n 把符号链接视为一般目录
+
+-s 软链接(符号链接)
+
+-v 显示详细的处理过程
+
+选择参数:
+
+-S “-S<字尾备份字符串> ”或 “--suffix=<字尾备份字符串>”
+
+-V “-V<备份方式>”或“--version-control=<备份方式>”
+
+--help 显示帮助信息
+
+--version 显示版本信息
+
+
+
+> 4、使用例子
+
+1、给文件创建软链接 
+
+```
+ln -s text.txt linktext
+```
+
+2、给文件创建硬链接 
+
+```
+ln text.txt lntext
+```
+
+3、将文件链接为另一个目录中的相同名字 
+
+```
+ln text.txt test2
+```
+
+​	在test1目录中创建了 text.txt的硬链接，修改test2目录中的 text.txt文件，同时也会同步到源文件 
+
+
+
+#### 1.8.2 date
+
+​	在linux环境中，不管是编程还是其他维护，时间是必不可少的，也经常会用到时间的运算，熟练运用date命令来表示自己想要表示的时间 。
+
+> 1、命令参数
+
+```
+date [参数]... [+格式]
+```
+
+> 2、命令功能
+
+date 可以用来显示或设定系统的日期与时间。 
+
+> 3、命令参数
+
+必要参数:
+
+%H 小时(以00-23来表示)。 
+
+%I 小时(以01-12来表示)。 
+
+%K 小时(以0-23来表示)。 
+
+%l 小时(以0-12来表示)。 
+
+%M 分钟(以00-59来表示)。 
+
+%P AM或PM。 
+
+%r 时间(含时分秒，小时以12小时AM/PM来表示)。 
+
+%s 总秒数。起算时间为1970-01-01 00:00:00 UTC。 
+
+%S 秒(以本地的惯用法来表示)。 
+
+%T 时间(含时分秒，小时以24小时制来表示)。 
+
+%X 时间(以本地的惯用法来表示)。 
+
+%Z 市区。 
+
+%a 星期的缩写。 
+
+%A 星期的完整名称。 
+
+%b 月份英文名的缩写。 
+
+%B 月份的完整英文名称。 
+
+%c 日期与时间。只输入date指令也会显示同样的结果。 
+
+%d 日期(以01-31来表示)。 
+
+%D 日期(含年月日)。 
+
+%j 该年中的第几天。 
+
+%m 月份(以01-12来表示)。 
+
+%U 该年中的周数。 
+
+%w 该周的天数，0代表周日，1代表周一，异词类推。 
+
+%x 日期(以本地的惯用法来表示)。 
+
+%y 年份(以00-99来表示)。 
+
+%Y 年份(以四位数来表示)。 
+
+%n 在显示时，插入新的一行。 
+
+%t 在显示时，插入tab。 
+
+MM 月份(必要) 
+
+DD 日期(必要) 
+
+hh 小时(必要) 
+
+mm 分钟(必要)
+
+ss 秒(选择性) 
+
+选择参数:
+
+-d<字符串> 　显示字符串所指的日期与时间。字符串前后必须加上双引号。 
+
+-s<字符串> 　根据字符串来设置日期与时间。字符串前后必须加上双引号。 
+
+-u 　显示GMT。 
+
+--help 　在线帮助。 
+
+--version 　显示版本信息 
+
+**使用说明：**
+
+1.在显示方面，使用者可以设定欲显示的格式，格式设定为一个加号后接数个标记，其中可用的标记列表如下: % :  打印出 %：
+
+%n : 下一行
+
+%t : 跳格
+
+%H : 小时(00..23)
+
+%I : 小时(01..12)
+
+%k : 小时(0..23)
+
+%l : 小时(1..12)
+
+%M : 分钟(00..59)
+
+%p : 显示本地 AM 或 PM
+
+%r : 直接显示时间 (12 小时制，格式为 hh:mm:ss [AP]M)
+
+%s : 从 1970 年 1 月 1 日 00:00:00 UTC 到目前为止的秒数
+
+%S : 秒(00..61)
+
+%T : 直接显示时间 (24 小时制)
+
+%X : 相当于 %H:%M:%S
+
+%Z : 显示时区 %a : 星期几 (Sun..Sat)
+
+%A : 星期几 (Sunday..Saturday)
+
+%b : 月份 (Jan..Dec)
+
+%B : 月份 (January..December)
+
+%c : 直接显示日期与时间
+
+%d : 日 (01..31)
+
+%D : 直接显示日期 (mm/dd/yy)
+
+%h : 同 %b
+
+%j : 一年中的第几天 (001..366)
+
+%m : 月份 (01..12)
+
+%U : 一年中的第几周 (00..53) (以 Sunday 为一周的第一天的情形)
+
+%w : 一周中的第几天 (0..6)
+
+%W : 一年中的第几周 (00..53) (以 Monday 为一周的第一天的情形)
+
+%x : 直接显示日期 (mm/dd/yy)
+
+%y : 年份的最后两位数字 (00.99)
+
+%Y : 完整年份 (0000..9999)
+
+2.在设定时间方面：
+
+date -s //设置当前时间，只有root权限才能设置，其他只能查看。
+
+date -s 20080523 //设置成20080523，这样会把具体时间设置成空00:00:00
+
+date -s 01:01:01 //设置具体时间，不会对日期做更改
+
+date -s “01:01:01 2008-05-23″ //这样可以设置全部时间
+
+date -s “01:01:01 20080523″ //这样可以设置全部时间
+
+date -s “2008-05-23 01:01:01″ //这样可以设置全部时间
+
+date -s “20080523 01:01:01″ //这样可以设置全部时间
+
+3.加减：
+
+date +%Y%m%d         //显示前天年月日
+
+date +%Y%m%d --date="+1 day"  //显示前一天的日期
+
+date +%Y%m%d --date="-1 day"  //显示后一天的日期
+
+date +%Y%m%d --date="-1 month"  //显示上一月的日期
+
+date +%Y%m%d --date="+1 month"  //显示下一月的日期
+
+date +%Y%m%d --date="-1 year"  //显示前一年的日期
+
+date +%Y%m%d --date="+1 year"  //显示下一年的日期
+
+> 4、使用例子
+
+1、显示当前时间
+
+```
+date
+date '+%c'
+date '+%D'
+date '+%x'
+date '+%T'
+date '+%X'
+```
+
+2、date -d参数使用 
+
+```
+date -d "nov 22"  今年的 11 月 22 日是星期三
+date -d '2 weeks' 2周后的日期
+date -d 'next monday' (下周一的日期)
+date -d next-day +%Y%m%d（明天的日期）或者：date -d tomorrow +%Y%m%d
+date -d last-day +%Y%m%d(昨天的日期) 或者：date -d yesterday +%Y%m%d
+date -d last-month +%Y%m(上个月是几月)
+date -d next-month +%Y%m(下个月是几月)
+
+使用 ago 指令，您可以得到过去的日期：
+date -d '30 days ago' （30天前的日期）
+
+使用负数以得到相反的日期：
+date -d 'dec 14 -2 weeks' （相对:dec 14这个日期的两周前的日期）
+date -d '-100 days' (100天以前的日期)
+date -d '50 days'(50天后的日期)
+```
+
+#### 1.8.3 cal
+
+​	cal命令可以用来显示公历（阳历）日历。公历是现在国际通用的历法，又称格列历，通称阳历。“阳历”又名“太阳历”，系以地球绕行太阳一周为一年，为西方各国所通用，故又名“西历”。 
+
+> 1．命令格式：
+
+```
+cal 参数[年份]
+```
+
+> 2．命令功能：
+
+用于查看日历等时间信息，如只有一个参数，则表示年份(1-9999)，如有两个参数，则表示月份和年份
+
+> 3．命令参数：
+
+-1 显示一个月的月历
+
+-3 显示系统前一个月，当前月，下一个月的月历
+
+-s  显示星期天为一个星期的第一天，默认的格式
+
+-m 显示星期一为一个星期的第一天
+-j  显示在当年中的第几天（一年日期按天算，从1月1号算起，默认显示当前月在一年中的天数）
+-y  显示当前年份的日历
+
+> 4．使用例子
+
+1、显示当前月份日历 
+
+```sh
+[root@localhost test1]# cal
+      六月 2019     
+日 一 二 三 四 五 六
+                   1
+ 2  3  4  5  6  7  8
+ 9 10 11 12 13 14 15
+16 17 18 19 20 21 22
+23 24 25 26 27 28 29
+30
+```
+
+2、显示指定年月份的日历 
+
+```sh
+[root@localhost test1]# cal 9 1994
+      九月 1994     
+日 一 二 三 四 五 六
+             1  2  3
+ 4  5  6  7  8  9 10
+11 12 13 14 15 16 17
+18 19 20 21 22 23 24
+25 26 27 28 29 30
+```
+
+3、显示2014年日历
+
+```sh
+[root@localhost test1]# cal -y 2014
+                               2014                               
+
+        一月                   二月                   三月        
+日 一 二 三 四 五 六   日 一 二 三 四 五 六   日 一 二 三 四 五 六
+          1  2  3  4                      1                      1
+ 5  6  7  8  9 10 11    2  3  4  5  6  7  8    2  3  4  5  6  7  8
+12 13 14 15 16 17 18    9 10 11 12 13 14 15    9 10 11 12 13 14 15
+19 20 21 22 23 24 25   16 17 18 19 20 21 22   16 17 18 19 20 21 22
+26 27 28 29 30 31      23 24 25 26 27 28      23 24 25 26 27 28 29
+                                              30 31
+        四月                   五月                   六月        
+日 一 二 三 四 五 六   日 一 二 三 四 五 六   日 一 二 三 四 五 六
+       1  2  3  4  5                1  2  3    1  2  3  4  5  6  7
+ 6  7  8  9 10 11 12    4  5  6  7  8  9 10    8  9 10 11 12 13 14
+13 14 15 16 17 18 19   11 12 13 14 15 16 17   15 16 17 18 19 20 21
+20 21 22 23 24 25 26   18 19 20 21 22 23 24   22 23 24 25 26 27 28
+27 28 29 30            25 26 27 28 29 30 31   29 30
+
+        七月                   八月                   九月        
+日 一 二 三 四 五 六   日 一 二 三 四 五 六   日 一 二 三 四 五 六
+       1  2  3  4  5                   1  2       1  2  3  4  5  6
+ 6  7  8  9 10 11 12    3  4  5  6  7  8  9    7  8  9 10 11 12 13
+13 14 15 16 17 18 19   10 11 12 13 14 15 16   14 15 16 17 18 19 20
+20 21 22 23 24 25 26   17 18 19 20 21 22 23   21 22 23 24 25 26 27
+27 28 29 30 31         24 25 26 27 28 29 30   28 29 30
+                       31
+        十月                  十一月                 十二月       
+日 一 二 三 四 五 六   日 一 二 三 四 五 六   日 一 二 三 四 五 六
+          1  2  3  4                      1       1  2  3  4  5  6
+ 5  6  7  8  9 10 11    2  3  4  5  6  7  8    7  8  9 10 11 12 13
+12 13 14 15 16 17 18    9 10 11 12 13 14 15   14 15 16 17 18 19 20
+19 20 21 22 23 24 25   16 17 18 19 20 21 22   21 22 23 24 25 26 27
+26 27 28 29 30 31      23 24 25 26 27 28 29   28 29 30 31
+                       30
+```
+
+4、显示自1月1日的天数 
+
+```sh
+[root@localhost test1]# cal -j
+         六月 2019         
+ 日  一  二  三  四  五  六
+                        152
+153 154 155 156 157 158 159
+160 161 162 163 164 165 166
+167 168 169 170 171 172 173
+174 175 176 177 178 179 180
+181
+```
+
+5、星期一显示在第一列 
+
+```sh
+[root@localhost test1]# cal -m
+      六月 2019     
+一 二 三 四 五 六 日
+                1  2
+ 3  4  5  6  7  8  9
+10 11 12 13 14 15 16
+17 18 19 20 21 22 23
+24 25 26 27 28 29 30
+```
+
+#### 1.8.4 grep
+
+​	Linux系统中grep命令是一种强大的文本搜索工具，它能使用正则表达式搜索文本，并把匹 配的行打印出来。grep全称是Global Regular Expression Print，表示全局正则表达式版本，它的使用权限是所有用户。
+
+​	grep的工作方式是这样的，它在一个或多个文件中搜索字符串模板。如果模板包括空格，则必须被引用，模板后的所有字符串被看作文件名。搜索的结果被送到标准输出，不影响原文件内容。
+
+​	grep可用于shell脚本，因为grep通过返回一个状态值来说明搜索的状态，如果模板搜索成功，则返回0，如果搜索不成功，则返回1，如果搜索的文件不存在，则返回2。我们利用这些返回值就可进行一些自动化的文本处理工作。
+
+> 1．命令格式：
+
+```
+grep [option] pattern file
+```
+
+> 2．命令功能：
+
+用于过滤/搜索的特定字符。可使用正则表达式能多种命令配合使用，使用上十分灵活。
+
+> 3．命令参数：
+
+```
+-a   --text   #不要忽略二进制的数据。   
+
+-A<显示行数>   --after-context=<显示行数>   #除了显示符合范本样式的那一列之外，并显示该行之后的内容。   
+
+-b   --byte-offset   #在显示符合样式的那一行之前，标示出该行第一个字符的编号。   
+
+-B<显示行数>   --before-context=<显示行数>   #除了显示符合样式的那一行之外，并显示该行之前的内容。   
+
+-c    --count   #计算符合样式的列数。   
+
+-C<显示行数>    --context=<显示行数>或-<显示行数>   #除了显示符合样式的那一行之外，并显示该行之前后的内容。   
+
+-d <动作>      --directories=<动作>   #当指定要查找的是目录而非文件时，必须使用这项参数，否则grep指令将回报信息并停止动作。   
+
+-e<范本样式>  --regexp=<范本样式>   #指定字符串做为查找文件内容的样式。   
+
+-E      --extended-regexp   #将样式为延伸的普通表示法来使用。   
+
+-f<规则文件>  --file=<规则文件>   #指定规则文件，其内容含有一个或多个规则样式，让grep查找符合规则条件的文件内容，格式为每行一个规则样式。   
+
+-F   --fixed-regexp   #将样式视为固定字符串的列表。   
+
+-G   --basic-regexp   #将样式视为普通的表示法来使用。   
+
+-h   --no-filename   #在显示符合样式的那一行之前，不标示该行所属的文件名称。   
+
+-H   --with-filename   #在显示符合样式的那一行之前，表示该行所属的文件名称。   
+
+-i    --ignore-case   #忽略字符大小写的差别。   
+
+-l    --file-with-matches   #列出文件内容符合指定的样式的文件名称。   
+
+-L   --files-without-match   #列出文件内容不符合指定的样式的文件名称。   
+
+-n   --line-number   #在显示符合样式的那一行之前，标示出该行的列数编号。   
+
+-q   --quiet或--silent   #不显示任何信息。   
+
+-r   --recursive   #此参数的效果和指定“-d recurse”参数相同。   
+
+-s   --no-messages   #不显示错误信息。   
+
+-v   --revert-match   #显示不包含匹配文本的所有行。   
+
+-V   --version   #显示版本信息。   
+
+-w   --word-regexp   #只显示全字符合的列。   
+
+-x    --line-regexp   #只显示全列符合的列。   
+
+-y   #此参数的效果和指定“-i”参数相同。
+
+  
+
+4．规则表达式：
+
+grep的规则表达式:
+
+^  #锚定行的开始 如：'^grep'匹配所有以grep开头的行。    
+
+$  #锚定行的结束 如：'grep$'匹配所有以grep结尾的行。    
+
+.  #匹配一个非换行符的字符 如：'gr.p'匹配gr后接一个任意字符，然后是p。    
+
+*  #匹配零个或多个先前字符 如：'*grep'匹配所有一个或多个空格后紧跟grep的行。    
+
+.*   #一起用代表任意字符。   
+
+[]   #匹配一个指定范围内的字符，如'[Gg]rep'匹配Grep和grep。    
+
+[^]  #匹配一个不在指定范围内的字符，如：'[^A-FH-Z]rep'匹配不包含A-R和T-Z的一个字母开头，紧跟rep的行。    
+
+\(..\)  #标记匹配字符，如'\(love\)'，love被标记为1。    
+
+\<      #锚定单词的开始，如:'\<grep'匹配包含以grep开头的单词的行。    
+
+\>      #锚定单词的结束，如'grep\>'匹配包含以grep结尾的单词的行。    
+
+x\{m\}  #重复字符x，m次，如：'0\{5\}'匹配包含5个o的行。    
+
+x\{m,\}  #重复字符x,至少m次，如：'o\{5,\}'匹配至少有5个o的行。    
+
+x\{m,n\}  #重复字符x，至少m次，不多于n次，如：'o\{5,10\}'匹配5--10个o的行。   
+
+\w    #匹配文字和数字字符，也就是[A-Za-z0-9]，如：'G\w*p'匹配以G后跟零个或多个文字或数字字符，然后是p。   
+
+\W    #\w的反置形式，匹配一个或多个非单词字符，如点号句号等。   
+
+\b    #单词锁定符，如: '\bgrep\b'只匹配grep。  
+
+POSIX字符:
+
+为了在不同国家的字符编码中保持一至，POSIX(The Portable Operating System Interface)增加了特殊的字符类，如[:alnum:]是[A-Za-z0-9]的另一个写法。要把它们放到[]号内才能成为正则表达式，如[A- Za-z0-9]或[[:alnum:]]。在linux下的grep除fgrep外，都支持POSIX的字符类。
+
+[:alnum:]    #文字数字字符   
+
+[:alpha:]    #文字字符   
+
+[:digit:]    #数字字符   
+
+[:graph:]    #非空字符（非空格、控制字符）   
+
+[:lower:]    #小写字符   
+
+[:cntrl:]    #控制字符   
+
+[:print:]    #非空字符（包括空格）   
+
+[:punct:]    #标点符号   
+
+[:space:]    #所有空白字符（新行，空格，制表符）   
+
+[:upper:]    #大写字符   
+
+[:xdigit:]   #十六进制数字（0-9，a-f，A-F）  
+```
+
+> 4、使用例子
+
+1、查看指定进程
+
+```sh
+[root@localhost test1]# ps -ef|grep svn
+root      19342  17676  0 11:11 pts/0    00:00:00 grep --color=auto svn
+```
+
+2、查找指定进程个数 
+
+```sh
+[root@localhost test1]# ps -ef|grep svn -c
+1
+[root@localhost test1]# ps -ef|grep -c svn
+1
+```
+
+3、从文件中查找关键词 
+
+```SH
+[root@localhost test1]# grep 'shell' test1.sh 
+a="shell"
+```
+
+#### 1.8.5 ps
+
+​	ps命令用来列出系统中当前运行的那些进程。ps命令列出的是当前那些进程的快照，就是执行ps命令的那个时刻的那些进程，如果想要动态的显示进程信息，就可以使用top命令。 
+
+​	ps 为我们提供了进程的一次性的查看，它所提供的查看结果并不动态连续的；如果想对进程时间监控，应该用 top 工具。 
+
+​	kill 命令用于杀死进程。 
+
+**linux上进程有5种状态:** 
+
+1. 运行(正在运行或在运行队列中等待) 
+
+2. 中断(休眠中, 受阻, 在等待某个条件的形成或接受到信号) 
+
+3. 不可中断(收到信号不唤醒和不可运行, 进程必须等待直到有中断发生) 
+
+4. 僵死(进程已终止, 但进程描述符存在, 直到父进程调用wait4()系统调用后释放) 
+
+5. 停止(进程收到SIGSTOP, SIGSTP, SIGTIN, SIGTOU信号后停止运行运行) 
+
+**ps工具标识进程的5种状态码:** 
+
+D 不可中断 uninterruptible sleep (usually IO) 
+
+R 运行 runnable (on run queue) 
+
+S 中断 sleeping 
+
+T 停止 traced or stopped 
+
+Z 僵死 a defunct (”zombie”) process
+
+> 1．命令格式：
+
+```
+ps[参数]
+```
+
+> 2．命令功能：
+
+用来显示当前进程的状态
+
+> 3．命令参数：
+
+a  显示所有进程
+
+-a 显示同一终端下的所有程序
+
+-A 显示所有进程
+
+c  显示进程的真实名称
+
+-N 反向选择
+
+-e 等于“-A”
+
+e  显示环境变量
+
+f  显示程序间的关系
+
+-H 显示树状结构
+
+r  显示当前终端的进程
+
+T  显示当前终端的所有程序
+
+u  指定用户的所有进程
+
+-au 显示较详细的资讯
+
+-aux 显示所有包含其他使用者的行程 
+
+-C<命令> 列出指定命令的状况
+
+--lines<行数> 每页显示的行数
+
+--width<字符数> 每页显示的字符数
+
+--help 显示帮助信息
+
+--version 显示版本显示
+
+> 4．使用例子：
+
+1、显示所有进程信息 
+
+```SH
+[root@localhost test1]# ps -A
+   PID TTY          TIME CMD
+     1 ?        00:00:01 systemd
+     2 ?        00:00:00 kthreadd
+     3 ?        00:00:00 ksoftirqd/0
+     4 ?        00:00:08 kworker/0:0
+     5 ?        00:00:00 kworker/0:0H
+     7 ?        00:00:00 migration/0
+     8 ?        00:00:00 rcu_bh
+     9 ?        00:00:01 rcu_sched
+    10 ?        00:00:00 lru-add-drain
+    11 ?        00:00:00 watchdog/0
+    12 ?        00:00:00 watchdog/1
+    13 ?        00:00:00 migration/1
+    14 ?        00:00:00 ksoftirqd/1
+    16 ?        00:00:00 kworker/1:0H
+    18 ?        00:00:00 kdevtmpfs
+    19 ?        00:00:00 netns
+```
+
+2、显示指定用户信息 
+
+```sh
+[root@localhost test1]# ps -u root
+   PID TTY          TIME CMD
+     1 ?        00:00:01 systemd
+     2 ?        00:00:00 kthreadd
+     3 ?        00:00:00 ksoftirqd/0
+     4 ?        00:00:08 kworker/0:0
+     5 ?        00:00:00 kworker/0:0H
+     7 ?        00:00:00 migration/0
+     8 ?        00:00:00 rcu_bh
+     9 ?        00:00:01 rcu_sched
+    10 ?        00:00:00 lru-add-drain
+    11 ?        00:00:00 watchdog/0
+    12 ?        00:00:00 watchdog/1
+```
+
+3、显示所有进程信息，连同命令行 
+
+```sh
+[root@localhost test1]# ps -ef
+UID         PID   PPID  C STIME TTY          TIME CMD
+root          1      0  0 08:53 ?        00:00:01 /usr/lib/systemd/systemd --switched-
+root          2      0  0 08:53 ?        00:00:00 [kthreadd]
+root          3      2  0 08:53 ?        00:00:00 [ksoftirqd/0]
+root          4      2  0 08:53 ?        00:00:08 [kworker/0:0]
+root          5      2  0 08:53 ?        00:00:00 [kworker/0:0H]
+root          7      2  0 08:53 ?        00:00:00 [migration/0]
+root          8      2  0 08:53 ?        00:00:00 [rcu_bh]
+root          9      2  0 08:53 ?        00:00:01 [rcu_sched]
+root         10      2  0 08:53 ?        00:00:00 [lru-add-drain]
+root         11      2  0 08:53 ?        00:00:00 [watchdog/0]
+root         12      2  0 08:53 ?        00:00:00 [watchdog/1]
+root         13      2  0 08:53 ?        00:00:00 [migration/1]
+root         14      2  0 08:53 ?        00:00:00 [ksoftirqd/1]
+root         16      2  0 08:53 ?        00:00:00 [kworker/1:0H]
+root         18      2  0 08:53 ?        00:00:00 [kdevtmpfs]
+```
+
+4、ps 与grep 常用组合用法，查找特定进程 
+
+```sh
+[root@localhost test1]# ps -ef|grep ssh
+root       6507      1  0 08:54 ?        00:00:00 /usr/sbin/sshd
+root      17674   6507  0 08:55 ?        00:00:00 sshd: root@pts/0
+root      19821  17676  0 11:55 pts/0    00:00:00 grep --color=auto ssh
+```
+
+5、将目前属于您自己这次登入的 PID 与相关信息列示出来 
+
+```sh
+[root@localhost test1]# ps -l
+F S   UID    PID   PPID  C PRI  NI ADDR SZ WCHAN  TTY          TIME CMD
+4 S     0  17676  17674  0  80   0 - 29081 wait   pts/0    00:00:00 bash
+0 R     0  19822  17676  0  80   0 - 38309 -      pts/0    00:00:00 ps
+```
+
+F 代表这个程序的旗标 (flag)， 4 代表使用者为 super user
+
+S 代表这个程序的状态 (STAT)，关于各 STAT 的意义将在内文介绍
+
+UID 程序被该 UID 所拥有
+
+PID 就是这个程序的 ID ！
+
+PPID 则是其上级父程序的ID
+
+C CPU 使用的资源百分比
+
+PRI 这个是 Priority (优先执行序) 的缩写，详细后面介绍
+
+NI 这个是 Nice 值，在下一小节我们会持续介绍
+
+ADDR 这个是 kernel function，指出该程序在内存的那个部分。如果是个 running的程序，一般就是 "-"
+
+SZ 使用掉的内存大小
+
+WCHAN 目前这个程序是否正在运作当中，若为 - 表示正在运作
+
+TTY 登入者的终端机位置
+
+TIME 使用掉的 CPU 时间。
+
+CMD 所下达的指令为何
+
+在预设的情况下， ps 仅会列出与目前所在的 bash shell 有关的 PID 而已，所以， 当我使用 ps -l 的时候，只有三个 PID。
+
+6、列出目前所有的正在内存当中的程序 
+
+```sh
+[root@localhost test1]# ps aux
+USER        PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root          1  0.0  0.2 125572  3976 ?        Ss   08:53   0:01 /usr/lib/systemd/sys
+root          2  0.0  0.0      0     0 ?        S    08:53   0:00 [kthreadd]
+root          3  0.0  0.0      0     0 ?        S    08:53   0:00 [ksoftirqd/0]
+root          4  0.0  0.0      0     0 ?        S    08:53   0:08 [kworker/0:0]
+root          5  0.0  0.0      0     0 ?        S<   08:53   0:00 [kworker/0:0H]
+root          7  0.0  0.0      0     0 ?        S    08:53   0:00 [migration/0]
+root          8  0.0  0.0      0     0 ?        S    08:53   0:00 [rcu_bh]
+root          9  0.0  0.0      0     0 ?        S    08:53   0:01 [rcu_sched]
+```
+
+USER：该 process 属于那个使用者账号的
+
+PID ：该 process 的号码
+
+%CPU：该 process 使用掉的 CPU 资源百分比
+
+%MEM：该 process 所占用的物理内存百分比
+
+VSZ ：该 process 使用掉的虚拟内存量 (Kbytes)
+
+RSS ：该 process 占用的固定的内存量 (Kbytes)
+
+TTY ：该 process 是在那个终端机上面运作，若与终端机无关，则显示 ?，另外， tty1-tty6 是本机上面的登入者程序，若为 pts/0 等等的，则表示为由网络连接进主机的程序。
+
+STAT：该程序目前的状态，主要的状态有
+
+R ：该程序目前正在运作，或者是可被运作
+
+S ：该程序目前正在睡眠当中 (可说是 idle 状态)，但可被某些讯号 (signal) 唤醒。
+
+T ：该程序目前正在侦测或者是停止了
+
+Z ：该程序应该已经终止，但是其父程序却无法正常的终止他，造成 zombie (疆尸) 程序的状态
+
+START：该 process 被触发启动的时间
+
+TIME ：该 process 实际使用 CPU 运作的时间
+
+COMMAND：该程序的实际指令
+
+
+
+#### 1.8.6 at
+
+​	在windows系统中，windows提供了计划任务这一功能，在控制面板 -> 性能与维护 -> 任务计划， 它的功能就是安排自动运行的任务。 通过'添加任务计划'的一步步引导，则可建立一个定时执行的任务。 
+
+> 1．命令格式：
+
+```
+at[参数][时间]
+```
+
+> 2．命令功能：
+
+​	在一个指定的时间执行一个指定任务，只能执行一次，且需要开启atd进程（ps -ef | grep atd查看， 开启用/etc/init.d/atd start or restart； 开机即启动则需要运行	chkconfig --level 2345 atd on）。
+
+> 3．命令参数：
+
+-m 当指定的任务被完成之后，将给用户发送邮件，即使没有标准输出
+
+-I atq的别名
+
+-d atrm的别名
+
+-v 显示任务将被执行的时间
+
+-c 打印任务的内容到标准输出
+
+-V 显示版本信息
+
+-q<列队> 使用指定的列队
+
+-f<文件> 从指定文件读入任务而不是从标准输入读入
+
+-t<时间参数> 以时间参数的形式提交要运行的任务 
+
+at允许使用一套相当复杂的指定时间的方法。他能够接受在当天的hh:mm（小时:分钟）式的时间指定。假如该时间已过去，那么就放在第二天执行。当然也能够使用midnight（深夜），noon（中午），teatime（饮茶时间，一般是下午4点）等比较模糊的 词语来指定时间。用户还能够采用12小时计时制，即在时间后面加上AM（上午）或PM（下午）来说明是上午还是下午。 也能够指定命令执行的具体日期，指定格式为month day（月 日）或mm/dd/yy（月/日/年）或dd.mm.yy（日.月.年）。指定的日期必须跟在指定时间的后面。 上面介绍的都是绝对计时法，其实还能够使用相对计时法，这对于安排不久就要执行的命令是很有好处的。指定格式为：now + count time-units ，now就是当前时间，time-units是时间单位，这里能够是minutes（分钟）、hours（小时）、days（天）、weeks（星期）。count是时间的数量，究竟是几天，还是几小时，等等。 更有一种计时方法就是直接使用today（今天）、tomorrow（明天）来指定完成命令的时间。
+
+TIME：时间格式，这里可以定义出什么时候要进行 at 这项任务的时间，格式有：
+
+HH:MM	
+
+ex> 04:00
+
+在今日的 HH:MM 时刻进行，若该时刻已超过，则明天的 HH:MM 进行此任务。
+
+HH:MM YYYY-MM-DD
+
+ex> 04:00 2009-03-17
+
+强制规定在某年某月的某一天的特殊时刻进行该项任务
+
+HH:MM[am|pm][Month] [Date]
+
+ex> 04pm March 17
+
+也是一样，强制在某年某月某日的某时刻进行该项任务
+
+HH:MM[am|pm] + number [minutes|hours|days|weeks]
+
+ex> now + 5 minutes
+
+ex> 04pm + 3 days
+
+就是说，在某个时间点再加几个时间后才进行该项任务。
+
+> 4、使用例子
+
+1、三天后的下午 5 点锺执行 /bin/ls 
+
+```
+[root@localhost ~]# at 5pm+3 days
+at> /bin/ls
+at> <EOT>
+job 7 at 2013-01-08 17:00
+```
+
+2、明天17点钟，输出时间到指定文件内 
+
+```
+[root@localhost ~]# at 17:20 tomorrow
+at> date >/root/2013.log         
+at> <EOT>
+job 8 at 2013-01-06 17:20
+```
+
+3、计划任务设定后，在没有执行之前我们可以用atq命令来查看系统没有执行工作任务 
+
+```
+[root@localhost ~]# atq
+8       2013-01-06 17:20 a root
+7       2013-01-08 17:00 a root
+```
+
+4、删除已经设置的任务 
+
+```
+[root@localhost test1]# atq
+1       Wed Jun  5 17:00:00 2019 a root
+[root@localhost test1]# atrm 1
+```
+
+5、显示已经设置的任务内容 
+
+```
+[root@localhost ~]# at -c 8
+#!/bin/sh
+# atrun uid=0 gid=0
+# mail     root 0
+umask 22此处省略n个字符
+```
+
+
+
+#### 1.8.7 crontab  
+
+一、crond简介
+
+crond是linux下用来周期性的执行某种任务或等待处理某些事件的一个守护进程，与windows下的计划任务类似，当安装完成操作系统后，默认会安装此服务工具，并且会自动启动crond进程，crond进程每分钟会定期检查是否有要执行的任务，如果有要执行的任务，则自动执行该任务。
+
+Linux下的任务调度分为两类，系统任务调度和用户任务调度。
+
+系统任务调度：系统周期性所要执行的工作，比如写缓存数据到硬盘、日志清理等。在/etc目录下有一个crontab文件，这个就是系统任务调度的配置文件。
+
+/etc/crontab文件包括下面几行：
+
+```sh
+[root@localhost ~]# cat /etc/crontab 
+SHELL=/bin/bash
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+MAILTO=""HOME=/
+# run-parts
+51 * * * * root run-parts /etc/cron.hourly
+24 7 * * * root run-parts /etc/cron.daily
+22 4 * * 0 root run-parts /etc/cron.weekly
+42 4 1 * * root run-parts /etc/cron.monthly
+[root@localhost ~]#
+```
+
+前四行是用来配置crond任务运行的环境变量，第一行SHELL变量指定了系统要使用哪个shell，这里是bash，第二行PATH变量指定了系统执行命令的路径，第三行MAILTO变量指定了crond的任务执行信息将通过电子邮件发送给root用户，如果MAILTO变量的值为空，则表示不发送任务执行信息给用户，第四行的HOME变量指定了在执行命令或者脚本时使用的主目录。第六至九行表示的含义将在下个小节详细讲述。这里不在多说。
+
+用户任务调度：用户定期要执行的工作，比如用户数据备份、定时邮件提醒等。用户可以使用 crontab 工具来定制自己的计划任务。所有用户定义的crontab 文件都被保存在 /var/spool/cron目录中。其文件名与用户名一致。
+
+使用者权限文件：
+
+文件：
+
+/etc/cron.deny
+
+说明：
+
+该文件中所列用户不允许使用crontab命令
+
+文件：
+
+/etc/cron.allow
+
+说明：
+
+该文件中所列用户允许使用crontab命令
+
+文件：
+
+/var/spool/cron/
+
+说明：
+
+所有用户crontab文件存放的目录,以用户名命名
+
+crontab文件的含义：
+
+用户所建立的crontab文件中，每一行都代表一项任务，每行的每个字段代表一项设置，它的格式共分为六个字段，前五段是时间设定段，第六段是要执行的命令段，格式如下：
+
+minute   hour   day   month   week   command
+
+其中：
+
+minute： 表示分钟，可以是从0到59之间的任何整数。
+
+hour：表示小时，可以是从0到23之间的任何整数。
+
+day：表示日期，可以是从1到31之间的任何整数。
+
+month：表示月份，可以是从1到12之间的任何整数。
+
+week：表示星期几，可以是从0到7之间的任何整数，这里的0或7代表星期日。
+
+command：要执行的命令，可以是系统命令，也可以是自己编写的脚本文件。
+
+![img](https://images0.cnblogs.com/blog/34483/201301/08090352-4e0aa3fe4f404b3491df384758229be1.png) 
+
+在以上各个字段中，还可以使用以下特殊字符：
+
+星号（*）：代表所有可能的值，例如month字段如果是星号，则表示在满足其它字段的制约条件后每月都执行该命令操作。
+
+逗号（,）：可以用逗号隔开的值指定一个列表范围，例如，“1,2,5,7,8,9”
+
+中杠（-）：可以用整数之间的中杠表示一个整数范围，例如“2-6”表示“2,3,4,5,6”
+
+正斜线（/）：可以用正斜线指定时间的间隔频率，例如“0-23/2”表示每两小时执行一次。同时正斜线可以和星号一起使用，例如*/10，如果用在minute字段，表示每十分钟执行一次。
+
+二、crond服务
+
+安装crontab：
+
+yum install crontabs
+
+服务操作说明：
+
+/sbin/service crond start //启动服务
+
+/sbin/service crond stop //关闭服务
+
+/sbin/service crond restart //重启服务
+
+/sbin/service crond reload //重新载入配置
+
+查看crontab服务状态：
+
+service crond status
+
+手动启动crontab服务：
+
+service crond start
+
+查看crontab服务是否已设置为开机启动，执行命令：
+
+ntsysv
+
+加入开机自动启动：
+
+chkconfig –level 35 crond on
+
+三、crontab命令详解
+
+> 1．命令格式：
+
+```
+crontab [-u user] file
+crontab -u user
+```
+
+
+
+> 2．命令功能：
+
+通过crontab 命令，我们可以在固定的间隔时间执行指定的系统指令或 shell script脚本。时间间隔的单位可以是分钟、小时、日、月、周及以上的任意组合。这个命令非常设合周期性的日志分析或数据备份等工作。
+
+> 3．命令参数：
+
+-u user：用来设定某个用户的crontab服务，例如，“-u ixdba”表示设定ixdba用户的crontab服务，此参数一般有root用户来运行。
+
+file：file是命令文件的名字,表示将file做为crontab的任务列表文件并载入crontab。如果在命令行中没有指定这个文件，crontab命令将接受标准输入（键盘）上键入的命令，并将它们载入crontab。
+
+-e：编辑某个用户的crontab文件内容。如果不指定用户，则表示编辑当前用户的crontab文件。
+
+-l：显示某个用户的crontab文件内容，如果不指定用户，则表示显示当前用户的crontab文件内容。
+
+-r：从/var/spool/cron目录中删除某个用户的crontab文件，如果不指定用户，则默认删除当前用户的crontab文件。
+
+-i：在删除用户的crontab文件时给确认提示。
+
+
+
+1). 创建一个新的crontab文件
+
+在考虑向cron进程提交一个crontab文件之前，首先要做的一件事情就是设置环境变量EDITOR。cron进程根据它来确定使用哪个编辑器编辑crontab文件。9 9 %的UNIX和LINUX用户都使用vi，如果你也是这样，那么你就编辑$ HOME目录下的. profile文件，在其中加入这样一行：
+
+EDITOR=vi; export EDITOR
+
+然后保存并退出。不妨创建一个名为<user> cron的文件，其中<user>是用户名，例如， davecron。在该文件中加入如下的内容。
+
+​     	# (put your own initials here)echo the date to the console every
+
+​     	# 15minutes between 6pm and 6am
+
+​     	0,15,30,45 18-06 * * * /bin/echo 'date' > /dev/console
+
+​    保存并退出。确信前面5个域用空格分隔。
+
+在上面的例子中，系统将每隔1 5分钟向控制台输出一次当前时间。如果系统崩溃或挂起，从最后所显示的时间就可以一眼看出系统是什么时间停止工作的。在有些系统中，用tty1来表示控制台，可以根据实际情况对上面的例子进行相应的修改。为了提交你刚刚创建的crontab文件，可以把这个新创建的文件作为cron命令的参数：
+
+​    	$ crontab davecron
+
+现在该文件已经提交给cron进程，它将每隔1 5分钟运行一次。
+
+同时，新创建文件的一个副本已经被放在/var/spool/cron目录中，文件名就是用户名(即dave)。
+
+2). 列出crontab文件
+
+   为了列出crontab文件，可以用：
+
+​    	$ crontab -l
+
+​    	0,15,30,45,18-06 * * * /bin/echo `date` > dev/tty1
+
+你将会看到和上面类似的内容。可以使用这种方法在$ H O M E目录中对crontab文件做一备份：
+
+​    	$ crontab -l > $HOME/mycron
+
+​    这样，一旦不小心误删了crontab文件，可以用上一节所讲述的方法迅速恢复。
+
+3). 编辑crontab文件
+
+   如果希望添加、删除或编辑crontab文件中的条目，而E D I TO R环境变量又设置为v i，那么就可以用v i来编辑crontab文件，相应的命令为：
+
+​    	$ crontab -e
+
+可以像使用v i编辑其他任何文件那样修改crontab文件并退出。如果修改了某些条目或添加了新的条目，那么在保存该文件时， c r o n会对其进行必要的完整性检查。如果其中的某个域出现了超出允许范围的值，它会提示你。
+
+我们在编辑crontab文件时，没准会加入新的条目。例如，加入下面的一条：
+
+   	# DT:delete core files,at 3.30am on 1,7,14,21,26,26 days of each month
+
+​    	30 3 1,7,14,21,26 * * /bin/find -name "core' -exec rm {} \;
+
+现在保存并退出。最好在crontab文件的每一个条目之上加入一条注释，这样就可以知道它的功能、运行时间，更为重要的是，知道这是哪位用户的作业。
+
+现在让我们使用前面讲过的crontab -l命令列出它的全部信息：
+
+   	$ crontab -l 
+
+   	# (crondave installed on Tue May 4 13:07:43 1999)
+
+   	# DT:ech the date to the console every 30 minites
+
+  	0,15,30,45 18-06 * * * /bin/echo `date` > /dev/tty1
+
+   	# DT:delete core files,at 3.30am on 1,7,14,21,26,26 days of each month
+
+   	30 3 1,7,14,21,26 * * /bin/find -name "core' -exec rm {} \;
+
+4). 删除crontab文件
+
+要删除crontab文件，可以用：
+
+   	$ crontab -r
+
+5). 恢复丢失的crontab文件
+
+如果不小心误删了crontab文件，假设你在自己的$ H O M E目录下还有一个备份，那么可以将其拷贝到/var/spool/cron/<username>，其中<username>是用户名。如果由于权限问题无法完成拷贝，可以用：
+
+​    	$ crontab <filename>
+
+​    其中，<filename>是你在$ H O M E目录中副本的文件名。
+
+我建议你在自己的$ H O M E目录中保存一个该文件的副本。我就有过类似的经历，有数次误删了crontab文件（因为r键紧挨在e键的右边）。这就是为什么有些系统文档建议不要直接编辑crontab文件，而是编辑该文件的一个副本，然后重新提交新的文件。
+
+有些crontab的变体有些怪异，所以在使用crontab命令时要格外小心。如果遗漏了任何选项，crontab可能会打开一个空文件，或者看起来像是个空文件。这时敲delete键退出，不要按<Ctrl-D>，否则你将丢失crontab文件。
+
+
+
+> 5．使用例子
+
+1、每1分钟执行一次command
+
+命令：
+
+```
+ ****** command
+```
+
+实例2：每小时的第3和第15分钟执行
+
+命令：
+
+3,15 * * * * command
+
+ 
+
+实例3：在上午8点到11点的第3和第15分钟执行
+
+命令：
+
+3,15 8-11 * * * command
+
+ 
+
+实例4：每隔两天的上午8点到11点的第3和第15分钟执行
+
+命令：
+
+3,15 8-11 */2 * * command
+
+ 
+
+实例5：每个星期一的上午8点到11点的第3和第15分钟执行
+
+命令：
+
+3,15 8-11 * * 1 command
+
+ 
+
+实例6：每晚的21:30重启smb 
+
+命令：
+
+30 21 * * * /etc/init.d/smb restart
+
+ 
+
+实例7：每月1、10、22日的4 : 45重启smb 
+
+命令：
+
+45 4 1,10,22 * * /etc/init.d/smb restart
+
+ 
+
+实例8：每周六、周日的1 : 10重启smb
+
+命令：
+
+10 1 * * 6,0 /etc/init.d/smb restart
+
+ 
+
+实例9：每天18 : 00至23 : 00之间每隔30分钟重启smb 
+
+命令：
+
+0,30 18-23 * * * /etc/init.d/smb restart
+
+ 
+
+实例10：每星期六的晚上11 : 00 pm重启smb 
+
+命令：
+
+0 23 * * 6 /etc/init.d/smb restart
+
+ 
+
+实例11：每一小时重启smb 
+
+命令：
+
+* */1 * * * /etc/init.d/smb restart
+
+ 
+
+实例12：晚上11点到早上7点之间，每隔一小时重启smb 
+
+命令：
+
+* 23-7/1 * * * /etc/init.d/smb restart
+
+ 
+
+实例13：每月的4号与每周一到周三的11点重启smb 
+
+命令：
+
+0 11 4 * mon-wed /etc/init.d/smb restart
+
+ 
+
+实例14：一月一号的4点重启smb 
+
+命令：
+
+0 4 1 jan * /etc/init.d/smb restart
+
+实例15：每小时执行/etc/cron.hourly目录内的脚本
+
+命令：
+
+01   *   *   *   *     root run-parts /etc/cron.hourly
+
+说明：
+
+run-parts这个参数了，如果去掉这个参数的话，后面就可以写要运行的某个脚本名，而不是目录名了
+
+**四、使用注意事项**
+
+**1.注意环境变量问题**
+
+有时我们创建了一个crontab，但是这个任务却无法自动执行，而手动执行这个任务却没有问题，这种情况一般是由于在crontab文件中没有配置环境变量引起的。
+
+在crontab文件中定义多个调度任务时，需要特别注意的一个问题就是环境变量的设置，因为我们手动执行某个任务时，是在当前shell环境下进行的，程序当然能找到环境变量，而系统自动执行任务调度时，是不会加载任何环境变量的，因此，就需要在crontab文件中指定任务运行所需的所有环境变量，这样，系统执行任务调度时就没有问题了。
+
+不要假定cron知道所需要的特殊环境，它其实并不知道。所以你要保证在shelll脚本中提供所有必要的路径和环境变量，除了一些自动设置的全局变量。所以注意如下3点：
+
+1）脚本中涉及文件路径时写全局路径；
+
+2）脚本执行要用到java或其他环境变量时，通过source命令引入环境变量，如：
+
+cat start_cbp.sh
+
+\#!/bin/sh
+
+source /etc/profile
+
+export RUN_CONF=/home/d139/conf/platform/cbp/cbp_jboss.conf
+
+/usr/local/jboss-4.0.5/bin/run.sh -c mev &
+
+3）当手动执行脚本OK，但是crontab死活不执行时。这时必须大胆怀疑是环境变量惹的祸，并可以尝试在crontab中直接引入环境变量解决问题。如：
+
+0 * * * * . /etc/profile;/bin/sh /var/www/java/audit_no_count/bin/restart_audit.sh
+
+**2. 注意清理系统用户的邮件日志**
+
+每条任务调度执行完毕，系统都会将任务输出信息通过电子邮件的形式发送给当前系统用户，这样日积月累，日志信息会非常大，可能会影响系统的正常运行，因此，将每条任务进行重定向处理非常重要。
+
+例如，可以在crontab文件中设置如下形式，忽略日志输出：
+
+0 */3 * * * /usr/local/apache2/apachectl restart >/dev/null 2>&1
+
+“/dev/null 2>&1”表示先将标准输出重定向到/dev/null，然后将标准错误重定向到标准输出，由于标准输出已经重定向到了/dev/null，因此标准错误也会重定向到/dev/null，这样日志输出问题就解决了。
+
+**3. 系统级任务调度与用户级任务调度**
+
+系统级任务调度主要完成系统的一些维护操作，用户级任务调度主要完成用户自定义的一些任务，可以将用户级任务调度放到系统级任务调度来完成（不建议这么做），但是反过来却不行，root用户的任务调度操作可以通过“crontab –uroot –e”来设置，也可以将调度任务直接写入/etc/crontab文件，需要注意的是，如果要定义一个定时重启系统的任务，就必须将任务放到/etc/crontab文件，即使在root用户下创建一个定时重启系统的任务也是无效的。
+
+**4. 其他注意事项**
+
+新创建的cron job，不会马上执行，至少要过2分钟才执行。如果重启cron则马上执行。
+
+当crontab突然失效时，可以尝试/etc/init.d/crond restart解决问题。或者查看日志看某个job有没有执行/报错tail -f /var/log/cron。
+
+千万别乱运行crontab -r。它从Crontab目录（/var/spool/cron）中删除用户的Crontab文件。删除了该用户的所有crontab都没了。
+
+在crontab中%是有特殊含义的，表示换行的意思。如果要用的话必须进行转义\%，如经常用的date ‘+%Y%m%d’在crontab里是不会执行的，应该换成date ‘+\%Y\%m\%d’
